@@ -15,24 +15,21 @@ class ExpandableSlider extends StatefulWidget {
   const ExpandableSlider({
     @required this.value,
     @required this.onChanged,
-    @required this.availableWidth,
-    this.duration = durations.smallPresenting,
+    this.shrunkWidth,
     this.expansionDuration = durations.mediumPresenting,
     this.shrinkingDuration = durations.mediumDismissing,
     this.curve = curves.main,
     this.inactiveColor,
     this.activeColor,
     Key key,
-  })  : assert(onChanged != null),
-        assert(duration != null),
+  })  : assert(value != null),
         super(key: key);
 
   final double value;
+  final void Function(double) onChanged;
+  final double shrunkWidth;
   final Color activeColor;
   final Color inactiveColor;
-  final double availableWidth;
-  final void Function(double) onChanged;
-  final Duration duration;
   final Duration expansionDuration;
   final Duration shrinkingDuration;
   final Curve curve;
@@ -51,6 +48,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   Animation<double> _expansionAnimation;
   AnimationStatus _previousStatus;
   double _expansionFocalValue;
+  double _shrunkWidth;
 
   @override
   void initState() {
@@ -78,9 +76,9 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   @override
   void didUpdateWidget(ExpandableSlider oldWidget) {
     final change = (oldWidget.value - widget.value).abs() * _totalWidth;
-    if (change > widget.availableWidth * _kScrollTriggerFactor && _isExpanded) {
+    if (change > _shrunkWidth * _kScrollTriggerFactor && _isExpanded) {
       _scroll.animateTo(
-        widget.value * _totalWidth - widget.availableWidth / 2,
+        widget.value * _totalWidth - _shrunkWidth / 2,
         duration: durations.largePresenting,
         curve: curves.main,
       );
@@ -92,33 +90,37 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   }
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-        onScaleUpdate: _toggleExpansionOnScale,
-        onLongPress: _toggleExpansionOnPress,
-        child: LayoutBuilder(
-          builder: (_, constraints) => ScrollConfiguration(
-            behavior: const NoGlowBehavior(),
-            child: SingleChildScrollView(
-              controller: _scroll,
-              scrollDirection: Axis.horizontal,
-              physics: const NeverScrollableScrollPhysics(),
-              child: SizedBox(
-                width: widget.availableWidth +
-                    _expansionAnimation.value * _kExpandedAddedWidth,
-                child: Slider(
-                  value: widget.value,
-                  activeColor: widget.activeColor,
-                  inactiveColor: widget.inactiveColor,
-                  onChanged: _onChanged,
-                  max: _max,
-                  min: _min,
-                  divisions: _kExpandedDivisions,
+  Widget build(BuildContext context) =>
+      LayoutBuilder(builder: (_, constraints) {
+        _shrunkWidth = widget.shrunkWidth ?? constraints.maxWidth;
+        return GestureDetector(
+          onScaleUpdate: _toggleExpansionOnScale,
+          onLongPress: _toggleExpansionOnPress,
+          child: LayoutBuilder(
+            builder: (_, constraints) => ScrollConfiguration(
+              behavior: const NoGlowBehavior(),
+              child: SingleChildScrollView(
+                controller: _scroll,
+                scrollDirection: Axis.horizontal,
+                physics: const NeverScrollableScrollPhysics(),
+                child: SizedBox(
+                  width: _shrunkWidth +
+                      _expansionAnimation.value * _kExpandedAddedWidth,
+                  child: Slider(
+                    value: widget.value,
+                    activeColor: widget.activeColor,
+                    inactiveColor: widget.inactiveColor,
+                    onChanged: _onChanged,
+                    max: _max,
+                    min: _min,
+                    divisions: _kExpandedDivisions,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      );
+        );
+      });
 
   @override
   void dispose() {
@@ -130,7 +132,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
 
   bool get _isShrunk => _expansion.status == AnimationStatus.dismissed;
 
-  double get _totalWidth => widget.availableWidth + _kExpandedAddedWidth;
+  double get _totalWidth => _shrunkWidth + _kExpandedAddedWidth;
 
   bool get _isCompleteForwarding =>
       _expansion.status == AnimationStatus.forward ||
@@ -153,7 +155,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     if (_isExpanded) {
       final scrollPosition = _scroll.position.pixels;
       final screenMin = scrollPosition / _totalWidth;
-      final screenMax = (scrollPosition + widget.availableWidth) / _totalWidth;
+      final screenMax = (scrollPosition + _shrunkWidth) / _totalWidth;
       final minDiff = (screenMin - _min).clamp(_kDefaultMin, _kDefaultMax);
       final maxDiff = (_max - screenMax).clamp(_kDefaultMin, _kDefaultMax);
       if (minDiff * _kExpandedScrollingFactor + _min > newValue) {

@@ -36,13 +36,12 @@ class _ExampleState extends State<Example> {
           Text("Slider value multiplied by ${widget._maxValue.toInt()}:"),
           Text(
             (widget._maxValue * _value).toStringAsFixed(0),
-            style: Theme.of(context).textTheme.headline,
+            style: Theme.of(context).textTheme.display1,
           ),
           SizedBox(height: 32),
           ExpandableSlider(
             value: _value,
             onChanged: _onChanged,
-            availableWidth: MediaQuery.of(context).size.width,
           ),
         ],
       );
