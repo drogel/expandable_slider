@@ -27,7 +27,7 @@ class Example extends StatefulWidget {
 }
 
 class _ExampleState extends State<Example> {
-  double _value = 0;
+  double _value = 1;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -42,6 +42,8 @@ class _ExampleState extends State<Example> {
           ExpandableSlider(
             value: _value,
             onChanged: _onChanged,
+            min: 0,
+            max: 1,
           ),
         ],
       );

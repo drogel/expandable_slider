@@ -7,8 +7,6 @@ const _kExpandedAddedWidth = 6000;
 const _kExpandedDivisions = 255;
 const _kExpandedScrollingFactor = 1.02;
 const _kScrollTriggerFactor = 0.86;
-const _kDefaultMin = 0.0;
-const _kDefaultMax = 1.0;
 const _kScrollingStep = 40;
 
 class ExpandableSlider extends StatefulWidget {
@@ -21,17 +19,23 @@ class ExpandableSlider extends StatefulWidget {
     this.curve = curves.main,
     this.inactiveColor,
     this.activeColor,
+    this.min = 0,
+    this.max = 1,
     Key key,
   })  : assert(value != null),
+        assert(min != null),
+        assert(max != null),
         super(key: key);
 
   final double value;
   final void Function(double) onChanged;
   final double shrunkWidth;
-  final Color activeColor;
-  final Color inactiveColor;
   final Duration expansionDuration;
   final Duration shrinkingDuration;
+  final Color activeColor;
+  final Color inactiveColor;
+  final double min;
+  final double max;
   final Curve curve;
 
   @override
@@ -40,8 +44,6 @@ class ExpandableSlider extends StatefulWidget {
 
 class _ExpandableSliderState extends State<ExpandableSlider>
     with SingleTickerProviderStateMixin {
-  final _max = _kDefaultMax;
-  final _min = _kDefaultMin;
   final ScrollController _scroll = ScrollController();
 
   AnimationController _expansion;
@@ -57,8 +59,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
       duration: widget.expansionDuration,
       reverseDuration: widget.shrinkingDuration,
     );
-    _expansionAnimation =
-        Tween<double>(begin: _kDefaultMin, end: _kDefaultMax).animate(
+    _expansionAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _expansion,
         curve: curves.exiting,
@@ -75,10 +76,12 @@ class _ExpandableSliderState extends State<ExpandableSlider>
 
   @override
   void didUpdateWidget(ExpandableSlider oldWidget) {
-    final change = (oldWidget.value - widget.value).abs() * _totalWidth;
+    final normalizedValue = _normalize(widget.value);
+    final normalizedOld = _normalize(oldWidget.value);
+    final change = (normalizedOld - normalizedValue).abs() * _totalWidth;
     if (change > _shrunkWidth * _kScrollTriggerFactor && _isExpanded) {
       _scroll.animateTo(
-        widget.value * _totalWidth - _shrunkWidth / 2,
+        normalizedValue * _totalWidth - _shrunkWidth / 2,
         duration: durations.largePresenting,
         curve: curves.main,
       );
@@ -111,8 +114,8 @@ class _ExpandableSliderState extends State<ExpandableSlider>
                     activeColor: widget.activeColor,
                     inactiveColor: widget.inactiveColor,
                     onChanged: _onChanged,
-                    max: _max,
-                    min: _min,
+                    max: widget.max,
+                    min: widget.min,
                     divisions: _kExpandedDivisions,
                   ),
                 ),
@@ -138,6 +141,9 @@ class _ExpandableSliderState extends State<ExpandableSlider>
       _expansion.status == AnimationStatus.forward ||
       (_isExpanded && _previousStatus == AnimationStatus.forward);
 
+  double _normalize(double value) =>
+      (value - widget.min) / (widget.max - widget.min);
+
   void _onChanged(double newValue) {
     _shouldScroll(newValue);
     widget.onChanged(newValue);
@@ -147,24 +153,27 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     if (_isExpanded) {
       _expansionFocalValue = _scroll.position.pixels;
     } else if (_isShrunk) {
-      _expansionFocalValue = widget.value;
+      _expansionFocalValue = _normalize(widget.value);
     }
   }
 
   void _shouldScroll(double newValue) {
+    final min = _normalize(widget.min);
+    final max = _normalize(widget.max);
+    final normalizedValue = _normalize(newValue);
     if (_isExpanded) {
       final scrollPosition = _scroll.position.pixels;
       final screenMin = scrollPosition / _totalWidth;
       final screenMax = (scrollPosition + _shrunkWidth) / _totalWidth;
-      final minDiff = (screenMin - _min).clamp(_kDefaultMin, _kDefaultMax);
-      final maxDiff = (_max - screenMax).clamp(_kDefaultMin, _kDefaultMax);
-      if (minDiff * _kExpandedScrollingFactor + _min > newValue) {
+      final minDiff = (screenMin - min).clamp(min, max);
+      final maxDiff = (max - screenMax).clamp(min, max);
+      if (minDiff * _kExpandedScrollingFactor + min > normalizedValue) {
         _scroll.animateTo(
           scrollPosition - _kScrollingStep,
           duration: durations.smallPresenting,
           curve: curves.main,
         );
-      } else if (_max - maxDiff * _kExpandedScrollingFactor < newValue) {
+      } else if (max - maxDiff * _kExpandedScrollingFactor < normalizedValue) {
         _scroll.animateTo(
           scrollPosition + _kScrollingStep,
           duration: durations.smallPresenting,
