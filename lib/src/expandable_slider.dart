@@ -3,8 +3,6 @@ import 'durations.dart' as durations;
 import 'curves.dart' as curves;
 import 'package:flutter/material.dart';
 
-const _kExpandedAddedWidth = 6000;
-const _kExpandedDivisions = 255;
 const _kExpandedScrollingFactor = 1.02;
 const _kScrollTriggerFactor = 0.86;
 const _kScrollingStep = 40;
@@ -21,6 +19,7 @@ class ExpandableSlider extends StatefulWidget {
     this.activeColor,
     this.min = 0,
     this.max = 1,
+    this.valueChangePerDivisionWhenExpanded = 1,
     Key key,
   })  : assert(value != null),
         assert(min != null),
@@ -36,6 +35,7 @@ class ExpandableSlider extends StatefulWidget {
   final Color inactiveColor;
   final double min;
   final double max;
+  final int valueChangePerDivisionWhenExpanded;
   final Curve curve;
 
   @override
@@ -51,6 +51,8 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   AnimationStatus _previousStatus;
   double _expansionFocalValue;
   double _shrunkWidth;
+  double _expandedExtraWidth;
+  int _divisions;
 
   @override
   void initState() {
@@ -71,6 +73,8 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     _scroll.addListener(_updateExpansionFocalValue);
     _previousStatus = _expansion.status;
     _updateExpansionFocalValue();
+    _expandedExtraWidth = 20000;
+    _divisions = _computeDesiredDivisions(min: widget.min, max: widget.max);
     super.initState();
   }
 
@@ -108,7 +112,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
                 physics: const NeverScrollableScrollPhysics(),
                 child: SizedBox(
                   width: _shrunkWidth +
-                      _expansionAnimation.value * _kExpandedAddedWidth,
+                      _expansionAnimation.value * _expandedExtraWidth,
                   child: Slider(
                     value: widget.value,
                     activeColor: widget.activeColor,
@@ -116,7 +120,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
                     onChanged: _onChanged,
                     max: widget.max,
                     min: widget.min,
-                    divisions: _kExpandedDivisions,
+                    divisions: _divisions,
                   ),
                 ),
               ),
@@ -135,17 +139,22 @@ class _ExpandableSliderState extends State<ExpandableSlider>
 
   bool get _isShrunk => _expansion.status == AnimationStatus.dismissed;
 
-  double get _totalWidth => _shrunkWidth + _kExpandedAddedWidth;
+  double get _totalWidth => _shrunkWidth + _expandedExtraWidth;
 
   bool get _isCompleteForwarding =>
       _expansion.status == AnimationStatus.forward ||
       (_isExpanded && _previousStatus == AnimationStatus.forward);
 
+  int _computeDesiredDivisions({@required double min, @required double max}) {
+    final distance = max - min;
+    return distance ~/ widget.valueChangePerDivisionWhenExpanded;
+  }
+
   double _normalize(double value) =>
       (value - widget.min) / (widget.max - widget.min);
 
   void _onChanged(double newValue) {
-    _shouldScroll(newValue);
+    //_shouldScroll(newValue);
     widget.onChanged(newValue);
   }
 
@@ -158,8 +167,8 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   }
 
   void _shouldScroll(double newValue) {
-    final min = _normalize(widget.min);
-    final max = _normalize(widget.max);
+    final min = 0;
+    final max = 1;
     final normalizedValue = _normalize(newValue);
     if (_isExpanded) {
       final scrollPosition = _scroll.position.pixels;
@@ -195,7 +204,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
 
   void _updateExpansionTransition() {
     final expansionValue = _expansionAnimation.value;
-    final addedWidth = expansionValue * _kExpandedAddedWidth;
+    final addedWidth = expansionValue * _expandedExtraWidth;
     if (_isCompleteForwarding) {
       setState(() => _scroll.jumpTo(_expansionFocalValue * addedWidth));
     } else {

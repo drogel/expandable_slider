@@ -12,38 +12,46 @@ class ExpandableSliderExampleApp extends StatelessWidget {
           appBar: AppBar(
             title: Text("Expandable slider sample app"),
           ),
-          body: const Example(1000),
+          body: const Example(max: 1000, min: 0),
         ),
       );
 }
 
 class Example extends StatefulWidget {
-  const Example(this._maxValue);
+  const Example({@required this.max, @required this.min});
 
-  final double _maxValue;
+  final double max;
+  final double min;
 
   @override
   _ExampleState createState() => _ExampleState();
 }
 
 class _ExampleState extends State<Example> {
-  double _value = 1;
+  double _value;
+
+  @override
+  void initState() {
+    _value = widget.min;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) => Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text("Slider value multiplied by ${widget._maxValue.toInt()}:"),
+          Text("Current slider value:"),
           Text(
-            (widget._maxValue * _value).toStringAsFixed(0),
+            (_value).toStringAsFixed(0),
             style: Theme.of(context).textTheme.display1,
           ),
           SizedBox(height: 32),
           ExpandableSlider(
             value: _value,
             onChanged: _onChanged,
-            min: 0,
-            max: 1,
+            min: widget.min,
+            max: widget.max,
+            valueChangePerDivisionWhenExpanded: 8,
           ),
         ],
       );
