@@ -3,9 +3,9 @@ import 'durations.dart' as durations;
 import 'curves.dart' as curves;
 import 'package:flutter/material.dart';
 
-const _kExpandedScrollingFactor = 1.02;
+const _kExpandedScrollingFactor = 1.002;
 const _kScrollTriggerFactor = 0.86;
-const _kScrollingStep = 40;
+const _kScrollingStep = 64;
 
 class ExpandableSlider extends StatefulWidget {
   const ExpandableSlider({
@@ -73,8 +73,8 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     _scroll.addListener(_updateExpansionFocalValue);
     _previousStatus = _expansion.status;
     _updateExpansionFocalValue();
-    _expandedExtraWidth = 20000;
     _divisions = _computeDesiredDivisions(min: widget.min, max: widget.max);
+    _expandedExtraWidth = _computeExtraWidth(_divisions);
     super.initState();
   }
 
@@ -150,11 +150,14 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     return distance ~/ widget.valueChangePerDivisionWhenExpanded;
   }
 
+  double _computeExtraWidth(int divisions) =>
+      divisions * _kScrollingStep / 2;
+
   double _normalize(double value) =>
       (value - widget.min) / (widget.max - widget.min);
 
   void _onChanged(double newValue) {
-    //_shouldScroll(newValue);
+    _shouldScroll(newValue);
     widget.onChanged(newValue);
   }
 
