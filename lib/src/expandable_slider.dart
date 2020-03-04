@@ -4,7 +4,7 @@ import 'curves.dart' as curves;
 import 'package:flutter/material.dart';
 
 const _kExpandedScrollingFactor = 1.002;
-const _kScrollTriggerFactor = 0.86;
+const _kSnapTriggerWidthFactor = 0.875;
 const _kScrollingStep = 64;
 
 class ExpandableSlider extends StatefulWidget {
@@ -83,7 +83,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     final normalizedValue = _normalize(widget.value);
     final normalizedOld = _normalize(oldWidget.value);
     final change = (normalizedOld - normalizedValue).abs() * _totalWidth;
-    if (change > _shrunkWidth * _kScrollTriggerFactor && _isExpanded) {
+    if (change > _shrunkWidth * _kSnapTriggerWidthFactor && _isExpanded) {
       _scroll.animateTo(
         normalizedValue * _totalWidth - _shrunkWidth / 2,
         duration: durations.largePresenting,

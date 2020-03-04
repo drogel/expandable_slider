@@ -51,7 +51,7 @@ class _ExampleState extends State<Example> {
             onChanged: _onChanged,
             min: widget.min,
             max: widget.max,
-            valueChangePerDivisionWhenExpanded: 10,
+            valueChangePerDivisionWhenExpanded: 1,
           ),
         ],
       );
