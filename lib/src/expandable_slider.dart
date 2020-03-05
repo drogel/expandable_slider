@@ -3,7 +3,7 @@ import 'durations.dart' as durations;
 import 'curves.dart' as curves;
 import 'package:flutter/material.dart';
 
-const _kExpandedScrollingFactor = 1.002;
+const _kExpandedScrollTriggerFactor = 0.085;
 const _kSnapTriggerWidthFactor = 0.875;
 const _kScrollingStep = 64;
 
@@ -150,8 +150,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     return distance ~/ widget.valueChangePerDivisionWhenExpanded;
   }
 
-  double _computeExtraWidth(int divisions) =>
-      divisions * _kScrollingStep / 2;
+  double _computeExtraWidth(int divisions) => divisions * _kScrollingStep / 2;
 
   double _normalize(double value) =>
       (value - widget.min) / (widget.max - widget.min);
@@ -175,17 +174,19 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     final normalizedValue = _normalize(newValue);
     if (_isExpanded) {
       final scrollPosition = _scroll.position.pixels;
-      final screenMin = scrollPosition / _totalWidth;
-      final screenMax = (scrollPosition + _shrunkWidth) / _totalWidth;
-      final minDiff = (screenMin - min).clamp(min, max);
-      final maxDiff = (max - screenMax).clamp(min, max);
-      if (minDiff * _kExpandedScrollingFactor + min > normalizedValue) {
+      final normalizedScreenMin = scrollPosition / _totalWidth;
+      final normalizedScreenMax = (scrollPosition + _shrunkWidth) / _totalWidth;
+      final valueChangeInScreen = normalizedScreenMax - normalizedScreenMin;
+      final minDiff = (normalizedScreenMin - min).clamp(min, max);
+      final maxDiff = (max - normalizedScreenMax).clamp(min, max);
+      final scrollTrigger = valueChangeInScreen * _kExpandedScrollTriggerFactor;
+      if (minDiff + scrollTrigger + min > normalizedValue) {
         _scroll.animateTo(
           scrollPosition - _kScrollingStep,
           duration: durations.smallPresenting,
           curve: curves.main,
         );
-      } else if (max - maxDiff * _kExpandedScrollingFactor < normalizedValue) {
+      } else if (max - maxDiff - scrollTrigger < normalizedValue) {
         _scroll.animateTo(
           scrollPosition + _kScrollingStep,
           duration: durations.smallPresenting,
