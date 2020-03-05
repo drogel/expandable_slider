@@ -14,11 +14,11 @@ class ExpandableSlider extends StatefulWidget {
     this.shrunkWidth,
     this.expansionDuration = durations.mediumPresenting,
     this.shrinkingDuration = durations.mediumDismissing,
-    this.snapScrollDuration = durations.longPresenting,
+    this.snapCenterScrollDuration = durations.longPresenting,
     this.sideScrollDuration = durations.shortPresenting,
     this.expansionCurve = curves.exiting,
     this.shrinkingCurve = curves.entering,
-    this.snapScrollCurve = curves.main,
+    this.snapCenterScrollCurve = curves.main,
     this.sideScrollCurve = curves.main,
     this.inactiveColor,
     this.activeColor,
@@ -36,7 +36,7 @@ class ExpandableSlider extends StatefulWidget {
   final double shrunkWidth;
   final Duration expansionDuration;
   final Duration shrinkingDuration;
-  final Duration snapScrollDuration;
+  final Duration snapCenterScrollDuration;
   final Duration sideScrollDuration;
   final Color activeColor;
   final Color inactiveColor;
@@ -45,7 +45,7 @@ class ExpandableSlider extends StatefulWidget {
   final int valueChangePerDivisionWhenExpanded;
   final Curve expansionCurve;
   final Curve shrinkingCurve;
-  final Curve snapScrollCurve;
+  final Curve snapCenterScrollCurve;
   final Curve sideScrollCurve;
 
   @override
@@ -93,7 +93,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     final normalizedValue = _normalize(widget.value);
     final normalizedOld = _normalize(oldWidget.value);
     final valueChange = (normalizedOld - normalizedValue).abs() * _totalWidth;
-    _shouldSnapScroll(normalizedValue, valueChange);
+    _shouldSnapCenterScroll(normalizedValue, valueChange);
     if (oldWidget.value != widget.value && _isShrunk) {
       _updateExpansionFocalValue();
     }
@@ -172,12 +172,12 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     }
   }
 
-  void _shouldSnapScroll(double newNormalizedValue, double valueChange) {
+  void _shouldSnapCenterScroll(double newNormalizedValue, double valueChange) {
     if (valueChange > _shrunkWidth * _kSnapTriggerWidthFactor && _isExpanded) {
       _scroll.animateTo(
         newNormalizedValue * _totalWidth - _shrunkWidth / 2,
-        duration: widget.snapScrollDuration,
-        curve: widget.snapScrollCurve,
+        duration: widget.snapCenterScrollDuration,
+        curve: widget.snapCenterScrollCurve,
       );
     }
   }
