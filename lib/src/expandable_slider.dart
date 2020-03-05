@@ -11,7 +11,14 @@ class ExpandableSlider extends StatefulWidget {
   const ExpandableSlider({
     @required this.value,
     @required this.onChanged,
+    this.onChangeStart,
+    this.onChangeEnd,
+    this.valueChangePerDivisionWhenExpanded = 1,
     this.shrunkWidth,
+    this.inactiveColor,
+    this.activeColor,
+    this.min = 0,
+    this.max = 1,
     this.expansionDuration = durations.mediumPresenting,
     this.shrinkingDuration = durations.mediumDismissing,
     this.snapCenterScrollDuration = durations.longPresenting,
@@ -20,33 +27,48 @@ class ExpandableSlider extends StatefulWidget {
     this.shrinkingCurve = curves.entering,
     this.snapCenterScrollCurve = curves.main,
     this.sideScrollCurve = curves.main,
-    this.inactiveColor,
-    this.activeColor,
-    this.min = 0,
-    this.max = 1,
-    this.valueChangePerDivisionWhenExpanded = 1,
+    this.expandsOnLongPress = true,
+    this.expandsOnScale = true,
+    this.expandsOnDoubleTap = false,
     Key key,
   })  : assert(value != null),
+        assert(valueChangePerDivisionWhenExpanded != null,
+            "This value can't be null, it's needed to calculate divisions"),
         assert(min != null),
         assert(max != null),
+        assert(expansionDuration != null),
+        assert(shrinkingDuration != null),
+        assert(snapCenterScrollDuration != null),
+        assert(sideScrollDuration != null),
+        assert(expansionCurve != null),
+        assert(snapCenterScrollCurve != null),
+        assert(sideScrollCurve != null),
+        assert(expandsOnLongPress != null),
+        assert(expandsOnScale != null),
+        assert(expandsOnDoubleTap != null),
         super(key: key);
 
   final double value;
   final void Function(double) onChanged;
+  final void Function(double) onChangeStart;
+  final void Function(double) onChangeEnd;
+  final int valueChangePerDivisionWhenExpanded;
+  final Color activeColor;
+  final Color inactiveColor;
+  final double min;
+  final double max;
   final double shrunkWidth;
   final Duration expansionDuration;
   final Duration shrinkingDuration;
   final Duration snapCenterScrollDuration;
   final Duration sideScrollDuration;
-  final Color activeColor;
-  final Color inactiveColor;
-  final double min;
-  final double max;
-  final int valueChangePerDivisionWhenExpanded;
   final Curve expansionCurve;
   final Curve shrinkingCurve;
   final Curve snapCenterScrollCurve;
   final Curve sideScrollCurve;
+  final bool expandsOnLongPress;
+  final bool expandsOnScale;
+  final bool expandsOnDoubleTap;
 
   @override
   _ExpandableSliderState createState() => _ExpandableSliderState();
@@ -63,6 +85,16 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   double _shrunkWidth;
   double _expandedExtraWidth;
   int _divisions;
+
+  bool get _isExpanded => _expansion.status == AnimationStatus.completed;
+
+  bool get _isShrunk => _expansion.status == AnimationStatus.dismissed;
+
+  double get _totalWidth => _shrunkWidth + _expandedExtraWidth;
+
+  bool get _hasFinishedForwarding =>
+      _expansion.status == AnimationStatus.forward ||
+      (_isExpanded && _previousStatus == AnimationStatus.forward);
 
   @override
   void initState() {
@@ -101,53 +133,47 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   }
 
   @override
-  Widget build(BuildContext context) =>
-      LayoutBuilder(builder: (_, constraints) {
-        _shrunkWidth = widget.shrunkWidth ?? constraints.maxWidth;
-        return GestureDetector(
-          onScaleUpdate: _toggleExpansionOnScale,
-          onLongPress: _toggleExpansionOnPress,
-          child: LayoutBuilder(
-            builder: (_, constraints) => ScrollConfiguration(
-              behavior: const NoGlowBehavior(),
-              child: SingleChildScrollView(
-                controller: _scroll,
-                scrollDirection: Axis.horizontal,
-                physics: const NeverScrollableScrollPhysics(),
-                child: SizedBox(
-                  width: _shrunkWidth +
-                      _expansionAnimation.value * _expandedExtraWidth,
-                  child: Slider(
-                    value: widget.value,
-                    activeColor: widget.activeColor,
-                    inactiveColor: widget.inactiveColor,
-                    onChanged: _onChanged,
-                    max: widget.max,
-                    min: widget.min,
-                    divisions: _divisions,
+  Widget build(BuildContext context) => LayoutBuilder(
+        builder: (_, constraints) {
+          _shrunkWidth = widget.shrunkWidth ?? constraints.maxWidth;
+          return GestureDetector(
+            onScaleUpdate: widget.expandsOnScale ? _toggleExpansionScale : null,
+            onLongPress: widget.expandsOnLongPress ? _toggleExpansion : null,
+            onDoubleTap: widget.expandsOnDoubleTap ? _toggleExpansion : null,
+            child: LayoutBuilder(
+              builder: (_, constraints) => ScrollConfiguration(
+                behavior: const NoGlowBehavior(),
+                child: SingleChildScrollView(
+                  controller: _scroll,
+                  scrollDirection: Axis.horizontal,
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: SizedBox(
+                    width: _shrunkWidth +
+                        _expansionAnimation.value * _expandedExtraWidth,
+                    child: Slider(
+                      value: widget.value,
+                      activeColor: widget.activeColor,
+                      inactiveColor: widget.inactiveColor,
+                      onChanged: _onChanged,
+                      onChangeStart: widget.onChangeStart,
+                      onChangeEnd: widget.onChangeEnd,
+                      max: widget.max,
+                      min: widget.min,
+                      divisions: _divisions,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
-      });
+          );
+        },
+      );
 
   @override
   void dispose() {
     _expansion.dispose();
     super.dispose();
   }
-
-  bool get _isExpanded => _expansion.status == AnimationStatus.completed;
-
-  bool get _isShrunk => _expansion.status == AnimationStatus.dismissed;
-
-  double get _totalWidth => _shrunkWidth + _expandedExtraWidth;
-
-  bool get _isCompleteForwarding =>
-      _expansion.status == AnimationStatus.forward ||
-      (_isExpanded && _previousStatus == AnimationStatus.forward);
 
   int _computeDesiredDivisions({@required double min, @required double max}) {
     final distance = max - min;
@@ -210,7 +236,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     }
   }
 
-  void _toggleExpansionOnScale(ScaleUpdateDetails details) {
+  void _toggleExpansionScale(ScaleUpdateDetails details) {
     if (details.horizontalScale > 1 && _isShrunk) {
       _expand();
     } else if (details.horizontalScale < 1 && _isExpanded) {
@@ -218,12 +244,12 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     }
   }
 
-  void _toggleExpansionOnPress() => _isExpanded ? _shrink() : _expand();
+  void _toggleExpansion() => _isExpanded ? _shrink() : _expand();
 
   void _updateExpansionTransition() {
     final expansionValue = _expansionAnimation.value;
     final addedWidth = expansionValue * _expandedExtraWidth;
-    if (_isCompleteForwarding) {
+    if (_hasFinishedForwarding) {
       setState(() => _scroll.jumpTo(_expansionFocalValue * addedWidth));
     } else {
       setState(() => _scroll.jumpTo(_expansionFocalValue * expansionValue));
