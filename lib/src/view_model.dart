@@ -10,8 +10,10 @@ class ExpandableSliderViewModel {
         _stateController = stateController;
 
   final StreamController<SliderState> _stateController;
-  
+
   Stream<SliderState> get stateStream => _stateController.stream;
+
+  int computeDivisions(double min, double max, int step) => (max - min) ~/ step;
 
   void dispose() => _stateController.close();
 }

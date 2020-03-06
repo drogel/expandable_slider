@@ -1,3 +1,6 @@
+import 'package:expandable_slider/src/injector.dart' as injector;
+import 'package:expandable_slider/src/view_model.dart';
+
 import 'no_glow_behavior.dart';
 import 'durations.dart' as durations;
 import 'curves.dart' as curves;
@@ -13,7 +16,7 @@ class ExpandableSlider extends StatefulWidget {
     @required this.onChanged,
     this.onChangeStart,
     this.onChangeEnd,
-    this.valueChangePerDivisionWhenExpanded = 1,
+    this.expandedEstimatedChangePerDivision = 1,
     this.shrunkWidth,
     this.inactiveColor,
     this.activeColor,
@@ -32,7 +35,7 @@ class ExpandableSlider extends StatefulWidget {
     this.expandsOnDoubleTap = false,
     Key key,
   })  : assert(value != null),
-        assert(valueChangePerDivisionWhenExpanded != null,
+        assert(expandedEstimatedChangePerDivision != null,
             "This value can't be null, it's needed to calculate divisions"),
         assert(min != null),
         assert(max != null),
@@ -52,7 +55,7 @@ class ExpandableSlider extends StatefulWidget {
   final void Function(double) onChanged;
   final void Function(double) onChangeStart;
   final void Function(double) onChangeEnd;
-  final int valueChangePerDivisionWhenExpanded;
+  final int expandedEstimatedChangePerDivision;
   final Color activeColor;
   final Color inactiveColor;
   final double min;
@@ -77,7 +80,7 @@ class ExpandableSlider extends StatefulWidget {
 class _ExpandableSliderState extends State<ExpandableSlider>
     with SingleTickerProviderStateMixin {
   final ScrollController _scroll = ScrollController();
-
+  ExpandableSliderViewModel _viewModel;
   AnimationController _expansion;
   Animation<double> _expansionAnimation;
   AnimationStatus _previousStatus;
@@ -98,6 +101,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
 
   @override
   void initState() {
+    _viewModel = injector.injectViewModel();
     _expansion = AnimationController(
       vsync: this,
       duration: widget.expansionDuration,
@@ -115,7 +119,11 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     _scroll.addListener(_updateExpansionFocalValue);
     _previousStatus = _expansion.status;
     _updateExpansionFocalValue();
-    _divisions = _computeDesiredDivisions(min: widget.min, max: widget.max);
+    _divisions = _viewModel.computeDivisions(
+      widget.min,
+      widget.max,
+      widget.expandedEstimatedChangePerDivision,
+    );
     _expandedExtraWidth = _computeExtraWidth(_divisions);
     super.initState();
   }
@@ -173,11 +181,6 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   void dispose() {
     _expansion.dispose();
     super.dispose();
-  }
-
-  int _computeDesiredDivisions({@required double min, @required double max}) {
-    final distance = max - min;
-    return distance ~/ widget.valueChangePerDivisionWhenExpanded;
   }
 
   double _computeExtraWidth(int divisions) => divisions * _kScrollingStep / 2;
