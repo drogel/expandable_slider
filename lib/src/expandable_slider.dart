@@ -11,7 +11,7 @@ class ExpandableSlider extends StatefulWidget {
     @required this.onChanged,
     this.onChangeStart,
     this.onChangeEnd,
-    this.expandedEstimatedChangePerDivision = 1,
+    this.estimatedValueStep = 1,
     this.shrunkWidth,
     this.inactiveColor,
     this.activeColor,
@@ -30,7 +30,7 @@ class ExpandableSlider extends StatefulWidget {
     this.expandsOnDoubleTap = false,
     Key key,
   })  : assert(value != null),
-        assert(expandedEstimatedChangePerDivision != null,
+        assert(estimatedValueStep != null,
             "This value can't be null, it's needed to calculate divisions"),
         assert(min != null),
         assert(max != null),
@@ -50,7 +50,7 @@ class ExpandableSlider extends StatefulWidget {
   final void Function(double) onChanged;
   final void Function(double) onChangeStart;
   final void Function(double) onChangeEnd;
-  final double expandedEstimatedChangePerDivision;
+  final double estimatedValueStep;
   final Color activeColor;
   final Color inactiveColor;
   final double min;
@@ -101,7 +101,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     _scroll.addListener(_updateExpansionFocalValue);
     _updateExpansionFocalValue();
     _divisions = _viewModel.computeDivisions(
-      widget.expandedEstimatedChangePerDivision,
+      widget.estimatedValueStep,
     );
     _expandedExtraWidth = _viewModel.computeExtraWidth(_divisions);
     super.initState();
