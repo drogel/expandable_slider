@@ -50,7 +50,7 @@ class ExpandableSlider extends StatefulWidget {
   final void Function(double) onChanged;
   final void Function(double) onChangeStart;
   final void Function(double) onChangeEnd;
-  final int expandedEstimatedChangePerDivision;
+  final double expandedEstimatedChangePerDivision;
   final Color activeColor;
   final Color inactiveColor;
   final double min;
@@ -159,6 +159,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   @override
   void dispose() {
     _expansion.dispose();
+    _viewModel = null;
     super.dispose();
   }
 
