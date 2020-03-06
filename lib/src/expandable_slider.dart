@@ -1,4 +1,3 @@
-import 'package:expandable_slider/src/injector.dart' as injector;
 import 'package:expandable_slider/src/view_model.dart';
 
 import 'no_glow_behavior.dart';
@@ -101,7 +100,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
 
   @override
   void initState() {
-    _viewModel = injector.injectViewModel();
+    _viewModel = ExpandableSliderViewModel(min: widget.min, max: widget.max);
     _expansion = AnimationController(
       vsync: this,
       duration: widget.expansionDuration,
@@ -120,8 +119,6 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     _previousStatus = _expansion.status;
     _updateExpansionFocalValue();
     _divisions = _viewModel.computeDivisions(
-      widget.min,
-      widget.max,
       widget.expandedEstimatedChangePerDivision,
     );
     _expandedExtraWidth = _computeExtraWidth(_divisions);
@@ -130,8 +127,11 @@ class _ExpandableSliderState extends State<ExpandableSlider>
 
   @override
   void didUpdateWidget(ExpandableSlider oldWidget) {
-    final normalizedValue = _normalize(widget.value);
-    final normalizedOld = _normalize(oldWidget.value);
+    if (oldWidget.min != widget.min || oldWidget.max != widget.max) {
+      _viewModel = ExpandableSliderViewModel(min: widget.min, max: widget.max);
+    }
+    final normalizedValue = _viewModel.normalize(widget.value);
+    final normalizedOld = _viewModel.normalize(oldWidget.value);
     final valueChange = (normalizedOld - normalizedValue).abs() * _totalWidth;
     _shouldSnapCenterScroll(normalizedValue, valueChange);
     if (oldWidget.value != widget.value && _isShrunk) {
@@ -185,9 +185,6 @@ class _ExpandableSliderState extends State<ExpandableSlider>
 
   double _computeExtraWidth(int divisions) => divisions * _kScrollingStep / 2;
 
-  double _normalize(double value) =>
-      (value - widget.min) / (widget.max - widget.min);
-
   void _onChanged(double newValue) {
     _shouldSideScroll(newValue);
     widget.onChanged(newValue);
@@ -197,7 +194,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     if (_isExpanded) {
       _expansionFocalValue = _scroll.position.pixels;
     } else if (_isShrunk) {
-      _expansionFocalValue = _normalize(widget.value);
+      _expansionFocalValue = _viewModel.normalize(widget.value);
     }
   }
 
@@ -214,7 +211,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   void _shouldSideScroll(double newValue) {
     final min = 0;
     final max = 1;
-    final normalizedValue = _normalize(newValue);
+    final normalizedValue = _viewModel.normalize(newValue);
     if (_isExpanded) {
       final scrollPosition = _scroll.position.pixels;
       final normalizedScreenMin = scrollPosition / _totalWidth;

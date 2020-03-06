@@ -1,19 +1,16 @@
-import 'dart:async';
-
-import 'package:expandable_slider/src/states.dart';
 import 'package:flutter/foundation.dart';
 
 class ExpandableSliderViewModel {
-  const ExpandableSliderViewModel({
-    @required StreamController<SliderState> stateController,
-  })  : assert(stateController != null),
-        _stateController = stateController;
+  const ExpandableSliderViewModel({@required double min, @required double max})
+      : assert(min != null),
+        assert(max != null),
+        _min = min,
+        _max = max;
 
-  final StreamController<SliderState> _stateController;
+  final double _min;
+  final double _max;
 
-  Stream<SliderState> get stateStream => _stateController.stream;
+  int computeDivisions(int step) => (_max - _min) ~/ step;
 
-  int computeDivisions(double min, double max, int step) => (max - min) ~/ step;
-
-  void dispose() => _stateController.close();
+  double normalize(double value) => (value - _min) / (_max - _min);
 }
