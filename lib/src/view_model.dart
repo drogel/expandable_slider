@@ -30,12 +30,12 @@ class ExpandableSliderViewModel {
     final min = 0;
     final max = 1;
     final normalizedValue = normalize(newValue);
-    final normalizedScreenMin = scrollPosition / totalWidth;
-    final normalizedScreenMax = (scrollPosition + shrunkWidth) / totalWidth;
-    final valueChangeInScreen = normalizedScreenMax - normalizedScreenMin;
-    final minDiff = (normalizedScreenMin - min).clamp(min, max);
-    final maxDiff = (max - normalizedScreenMax).clamp(min, max);
-    final scrollTriggerDiff = valueChangeInScreen * _kSideScrollTriggerFactor;
+    final normalizedBoundsMin = scrollPosition / totalWidth;
+    final normalizedBoundsMax = (scrollPosition + shrunkWidth) / totalWidth;
+    final boundsValueDiff = normalizedBoundsMax - normalizedBoundsMin;
+    final minDiff = (normalizedBoundsMin - min).clamp(min, max);
+    final maxDiff = (max - normalizedBoundsMax).clamp(min, max);
+    final scrollTriggerDiff = boundsValueDiff * _kSideScrollTriggerFactor;
 
     if (minDiff + scrollTriggerDiff + min > normalizedValue) {
       return scrollPosition - _kScrollingStep;
