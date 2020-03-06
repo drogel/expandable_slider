@@ -5,8 +5,6 @@ import 'durations.dart' as durations;
 import 'curves.dart' as curves;
 import 'package:flutter/material.dart';
 
-const _kSnapTriggerWidthFactor = 0.875;
-
 class ExpandableSlider extends StatefulWidget {
   const ExpandableSlider({
     @required this.value,
@@ -80,7 +78,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   ExpandableSliderViewModel _viewModel;
   AnimationController _expansion;
   Animation<double> _expansionAnimation;
-  AnimationStatus _previousStatus;
+  AnimationStatus _previousExpansionStatus;
   double _expansionFocalValue;
   double _shrunkWidth;
   double _expandedExtraWidth;
@@ -92,29 +90,15 @@ class _ExpandableSliderState extends State<ExpandableSlider>
 
   double get _totalWidth => _shrunkWidth + _expandedExtraWidth;
 
-  bool get _hasFinishedForwarding =>
+  bool get _wasForwarding =>
       _expansion.status == AnimationStatus.forward ||
-      (_isExpanded && _previousStatus == AnimationStatus.forward);
+      (_isExpanded && _previousExpansionStatus == AnimationStatus.forward);
 
   @override
   void initState() {
     _viewModel = ExpandableSliderViewModel(min: widget.min, max: widget.max);
-    _expansion = AnimationController(
-      vsync: this,
-      duration: widget.expansionDuration,
-      reverseDuration: widget.shrinkingDuration,
-    );
-    _expansionAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _expansion,
-        curve: widget.expansionCurve,
-        reverseCurve: widget.shrinkingCurve,
-      ),
-    );
-    _expansionAnimation.addListener(_updateExpansionTransition);
-    _expansionAnimation.addStatusListener((_) => _updateExpansionFocalValue());
+    _setUpExpansionAnimation();
     _scroll.addListener(_updateExpansionFocalValue);
-    _previousStatus = _expansion.status;
     _updateExpansionFocalValue();
     _divisions = _viewModel.computeDivisions(
       widget.expandedEstimatedChangePerDivision,
@@ -128,13 +112,10 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     if (oldWidget.min != widget.min || oldWidget.max != widget.max) {
       _viewModel = ExpandableSliderViewModel(min: widget.min, max: widget.max);
     }
-    final normalizedValue = _viewModel.normalize(widget.value);
-    final normalizedOld = _viewModel.normalize(oldWidget.value);
-    final valueChange = (normalizedOld - normalizedValue).abs() * _totalWidth;
-    _shouldSnapCenterScroll(normalizedValue, valueChange);
     if (oldWidget.value != widget.value && _isShrunk) {
       _updateExpansionFocalValue();
     }
+    _shouldSnapCenter(widget.value, oldWidget.value);
     super.didUpdateWidget(oldWidget);
   }
 
@@ -181,6 +162,20 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     super.dispose();
   }
 
+  void _expand() => _expansion.forward();
+
+  void _shrink() => _expansion.reverse();
+
+  void _toggleExpansionScale(ScaleUpdateDetails details) {
+    if (details.horizontalScale > 1) {
+      _expand();
+    } else if (details.horizontalScale < 1) {
+      _shrink();
+    }
+  }
+
+  void _toggleExpansion() => _isExpanded ? _shrink() : _expand();
+
   void _onChanged(double newValue) {
     _shouldSideScroll(newValue);
     widget.onChanged(newValue);
@@ -194,14 +189,23 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     }
   }
 
-  void _shouldSnapCenterScroll(double newNormalizedValue, double valueChange) {
-    if (valueChange > _shrunkWidth * _kSnapTriggerWidthFactor && _isExpanded) {
-      _scroll.animateTo(
-        newNormalizedValue * _totalWidth - _shrunkWidth / 2,
-        duration: widget.snapCenterScrollDuration,
-        curve: widget.snapCenterScrollCurve,
-      );
-    }
+  void _shouldSnapCenter(double newValue, double oldValue) {
+    if (!_isExpanded) return;
+    final snapCenterScrollPosition = _viewModel.computeSnapCenterScrollPosition(
+      shrunkWidth: _shrunkWidth,
+      totalWidth: _totalWidth,
+      newValue: newValue,
+      oldValue: oldValue,
+    );
+
+    if (snapCenterScrollPosition == null) return;
+    final normalizedValue = _viewModel.normalize(newValue);
+    final newCenterPosition = normalizedValue * _totalWidth - _shrunkWidth / 2;
+    _scroll.animateTo(
+      newCenterPosition,
+      duration: widget.snapCenterScrollDuration,
+      curve: widget.snapCenterScrollCurve,
+    );
   }
 
   void _shouldSideScroll(double newValue) {
@@ -221,28 +225,32 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     );
   }
 
-  void _toggleExpansionScale(ScaleUpdateDetails details) {
-    if (details.horizontalScale > 1 && _isShrunk) {
-      _expand();
-    } else if (details.horizontalScale < 1 && _isExpanded) {
-      _shrink();
-    }
-  }
-
-  void _toggleExpansion() => _isExpanded ? _shrink() : _expand();
-
   void _updateExpansionTransition() {
     final expansionValue = _expansionAnimation.value;
     final addedWidth = expansionValue * _expandedExtraWidth;
-    if (_hasFinishedForwarding) {
+    if (_wasForwarding) {
       setState(() => _scroll.jumpTo(_expansionFocalValue * addedWidth));
     } else {
       setState(() => _scroll.jumpTo(_expansionFocalValue * expansionValue));
     }
-    _previousStatus = _expansion.status;
+    _previousExpansionStatus = _expansion.status;
   }
 
-  void _expand() => _expansion.forward();
-
-  void _shrink() => _expansion.reverse();
+  void _setUpExpansionAnimation() {
+    _expansion = AnimationController(
+      vsync: this,
+      duration: widget.expansionDuration,
+      reverseDuration: widget.shrinkingDuration,
+    );
+    _expansionAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _expansion,
+        curve: widget.expansionCurve,
+        reverseCurve: widget.shrinkingCurve,
+      ),
+    );
+    _expansionAnimation.addListener(_updateExpansionTransition);
+    _expansionAnimation.addStatusListener((_) => _updateExpansionFocalValue());
+    _previousExpansionStatus = _expansion.status;
+  }
 }

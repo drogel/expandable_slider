@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 const _kScrollingStep = 64;
 const _kSideScrollTriggerFactor = 0.085;
+const _kSnapTriggerWidthFactor = 0.875;
 
 class ExpandableSliderViewModel {
   const ExpandableSliderViewModel({@required double min, @required double max})
@@ -39,6 +40,22 @@ class ExpandableSliderViewModel {
       return scrollPosition - _kScrollingStep;
     } else if (max - maxDiff - scrollTriggerDiff < normalizedValue) {
       return scrollPosition + _kScrollingStep;
+    } else {
+      return null;
+    }
+  }
+
+  double computeSnapCenterScrollPosition({
+    @required double shrunkWidth,
+    @required double totalWidth,
+    @required double newValue,
+    @required double oldValue,
+  }) {
+    final normalizedValue = normalize(newValue);
+    final normalizedOld = normalize(oldValue);
+    final valueChange = (normalizedOld - normalizedValue).abs() * totalWidth;
+    if (valueChange > shrunkWidth * _kSnapTriggerWidthFactor) {
+      return normalizedValue * totalWidth - shrunkWidth / 2;
     } else {
       return null;
     }
