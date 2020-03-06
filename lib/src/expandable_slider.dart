@@ -5,9 +5,7 @@ import 'durations.dart' as durations;
 import 'curves.dart' as curves;
 import 'package:flutter/material.dart';
 
-const _kSideScrollTriggerFactor = 0.085;
 const _kSnapTriggerWidthFactor = 0.875;
-const _kScrollingStep = 64;
 
 class ExpandableSlider extends StatefulWidget {
   const ExpandableSlider({
@@ -121,7 +119,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     _divisions = _viewModel.computeDivisions(
       widget.expandedEstimatedChangePerDivision,
     );
-    _expandedExtraWidth = _computeExtraWidth(_divisions);
+    _expandedExtraWidth = _viewModel.computeExtraWidth(_divisions);
     super.initState();
   }
 
@@ -183,8 +181,6 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     super.dispose();
   }
 
-  double _computeExtraWidth(int divisions) => divisions * _kScrollingStep / 2;
-
   void _onChanged(double newValue) {
     _shouldSideScroll(newValue);
     widget.onChanged(newValue);
@@ -209,31 +205,20 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   }
 
   void _shouldSideScroll(double newValue) {
-    final min = 0;
-    final max = 1;
-    final normalizedValue = _viewModel.normalize(newValue);
-    if (_isExpanded) {
-      final scrollPosition = _scroll.position.pixels;
-      final normalizedScreenMin = scrollPosition / _totalWidth;
-      final normalizedScreenMax = (scrollPosition + _shrunkWidth) / _totalWidth;
-      final valueChangeInScreen = normalizedScreenMax - normalizedScreenMin;
-      final minDiff = (normalizedScreenMin - min).clamp(min, max);
-      final maxDiff = (max - normalizedScreenMax).clamp(min, max);
-      final scrollTriggerDiff = valueChangeInScreen * _kSideScrollTriggerFactor;
-      if (minDiff + scrollTriggerDiff + min > normalizedValue) {
-        _scroll.animateTo(
-          scrollPosition - _kScrollingStep,
-          duration: widget.sideScrollDuration,
-          curve: widget.sideScrollCurve,
-        );
-      } else if (max - maxDiff - scrollTriggerDiff < normalizedValue) {
-        _scroll.animateTo(
-          scrollPosition + _kScrollingStep,
-          duration: widget.sideScrollDuration,
-          curve: widget.sideScrollCurve,
-        );
-      }
-    }
+    if (!_isExpanded) return;
+    final sideScroll = _viewModel.computeSideScroll(
+      newValue: newValue,
+      scrollPosition: _scroll.position.pixels,
+      totalWidth: _totalWidth,
+      shrunkWidth: _shrunkWidth,
+    );
+
+    if (sideScroll == null) return;
+    _scroll.animateTo(
+      sideScroll,
+      duration: widget.sideScrollDuration,
+      curve: widget.sideScrollCurve,
+    );
   }
 
   void _toggleExpansionScale(ScaleUpdateDetails details) {
