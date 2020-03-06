@@ -12,7 +12,7 @@ class ExpandableSliderExampleApp extends StatelessWidget {
           appBar: AppBar(
             title: Text("Expandable slider sample app"),
           ),
-          body: const Example(max: 1000, min: 0),
+          body: const Example(max: 5, min: 0),
         ),
       );
 }
@@ -51,7 +51,7 @@ class _ExampleState extends State<Example> {
             onChanged: _onChanged,
             min: widget.min,
             max: widget.max,
-            valueChangePerDivisionWhenExpanded: 100,
+            expandedEstimatedChangePerDivision: 0.1,
           ),
         ],
       );
