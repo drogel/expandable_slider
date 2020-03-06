@@ -30,6 +30,7 @@ void main() {
 
   final label = find.byKey(Key(TestableExpandableSlider.label));
   final slider = find.byKey(Key(TestableExpandableSlider.slider));
+  final button = find.byKey(Key(TestableExpandableSlider.button));
 
   group("Given a ExpandableSlider with an int associated value label", () {
     testWidgets("when loaded, then label and slider appear", (tester) async {

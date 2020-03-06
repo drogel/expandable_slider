@@ -11,6 +11,7 @@ class TestableExpandableSlider extends StatefulWidget {
 
   static const label = "label";
   static const slider = "slider";
+  static const button = "button";
 
   final double max;
   final double min;
@@ -45,6 +46,11 @@ class _TestableExpandableSliderState extends State<TestableExpandableSlider> {
             min: widget.min,
             max: widget.max,
             estimatedValueStep: widget.estimatedValueStep,
+          ),
+          RaisedButton(
+            key: Key(TestableExpandableSlider.button),
+            onPressed: () => _onChanged(widget.max / 2),
+            child: Text("Jump to half"),
           ),
         ],
       );
