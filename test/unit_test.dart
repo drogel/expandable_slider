@@ -33,6 +33,22 @@ void main() {
     expect(actual, expectedScroll);
   }
 
+  void runSnapCenterTest(
+    double expectedScroll, {
+    @required double shrunkWidth,
+    @required double totalWidth,
+    @required double newValue,
+    @required double oldValue,
+  }) {
+    final actual = viewModel.computeSnapCenterScrollPosition(
+      shrunkWidth: shrunkWidth,
+      totalWidth: totalWidth,
+      newValue: newValue,
+      oldValue: oldValue,
+    );
+    expect(actual, expectedScroll);
+  }
+
   group("Given a normalized ExpandableSliderViewModel", () {
     setUp(() => viewModel = ExpandableSliderViewModel(min: 0, max: 1));
     tearDown(() => viewModel = null);
@@ -100,6 +116,46 @@ void main() {
           scrollPosition: 500,
           totalWidth: 1000,
           shrunkWidth: 500,
+        );
+      });
+    });
+
+    group("when calling computeSnapCenterScrollPosition should snap", () {
+      test("then expected amount of pixels to snap center is retrieved", () {
+        // Value change is enough to trigger snap to center scrolling
+        runSnapCenterTest(
+          500,
+          shrunkWidth: 500,
+          totalWidth: 1000,
+          newValue: 0.75,
+          oldValue: 0.25,
+        );
+        runSnapCenterTest(
+          650,
+          shrunkWidth: 500,
+          totalWidth: 1000,
+          newValue: 0.9,
+          oldValue: 0.2,
+        );
+      });
+    });
+
+    group("when calling computeSnapCenterScrollPosition shouldn't snap", () {
+      test("then null is retrieved", () {
+        // Value change is not enough to trigger snap to center scrolling
+        runSnapCenterTest(
+          null,
+          shrunkWidth: 500,
+          totalWidth: 1000,
+          newValue: 0.75,
+          oldValue: 0.4,
+        );
+        runSnapCenterTest(
+          null,
+          shrunkWidth: 500,
+          totalWidth: 1000,
+          newValue: 0.56,
+          oldValue: 0.2,
         );
       });
     });
