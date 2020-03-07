@@ -203,13 +203,19 @@ class ExpandableSlider extends StatefulWidget {
   final Curve sideScrollCurve;
 
   /// Whether to expand or shrink the slider when performing a long press on it.
+  ///
+  /// Defaults to true.
   final bool expandsOnLongPress;
 
   /// Whether to expand or shrink the slider when performing a scale gesture on
   /// it.
+  ///
+  /// Defaults to true.
   final bool expandsOnScale;
 
   /// Whether to expand or shrink the slider when performing a double tap on it.
+  ///
+  /// Defaults to false.
   final bool expandsOnDoubleTap;
 
   /// How the [ScrollView] that wraps the slider should behave.
