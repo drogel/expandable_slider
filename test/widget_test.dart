@@ -7,12 +7,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'testable_expandable_slider.dart';
 
 void main() {
+  runTests(adaptive: true);
+  runTests(adaptive: false);
+}
+
+void runTests({@required bool adaptive}) {
   Future<void> init(
     tester, {
     @required double max,
     @required double min,
     @required double step,
-    bool adaptive = false,
   }) =>
       tester.pumpWidget(
         MediaQuery(
@@ -24,6 +28,7 @@ void main() {
                 max: max,
                 min: min,
                 estimatedValueStep: step,
+                adaptive: adaptive,
               ),
             ),
           ),
@@ -57,14 +62,6 @@ void main() {
   group("Given a ExpandableSlider with an int associated value label", () {
     testWidgets("when loaded, then label and slider appear", (tester) async {
       await init(tester, max: 10, min: 0, step: 1);
-
-      expect(label, findsOneWidget);
-      expect(slider, findsOneWidget);
-    });
-
-    testWidgets("when loaded adaptive, then label and slider appear",
-        (tester) async {
-      await init(tester, max: 10, min: 0, step: 1, adaptive: true);
 
       expect(label, findsOneWidget);
       expect(slider, findsOneWidget);
