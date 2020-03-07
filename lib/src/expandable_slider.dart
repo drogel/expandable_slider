@@ -1,9 +1,9 @@
 import 'package:expandable_slider/src/view_model.dart';
+import 'package:expandable_slider/src/durations.dart' as durations;
+import 'package:expandable_slider/src/curves.dart' as curves;
 import 'package:flutter/services.dart';
-
-import 'durations.dart' as durations;
-import 'curves.dart' as curves;
 import 'package:flutter/material.dart';
+
 
 class ExpandableSlider extends StatefulWidget {
   const ExpandableSlider({

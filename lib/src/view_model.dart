@@ -27,8 +27,8 @@ class ExpandableSliderViewModel {
     @required double totalWidth,
     @required double shrunkWidth,
   }) {
-    final min = 0;
-    final max = 1;
+    const min = 0;
+    const max = 1;
     final normalizedValue = normalize(newValue);
     final normalizedBoundsMin = scrollPosition / totalWidth;
     final normalizedBoundsMax = (scrollPosition + shrunkWidth) / totalWidth;

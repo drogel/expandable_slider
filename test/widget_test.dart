@@ -29,6 +29,9 @@ void main() {
         ),
       );
 
+  const min = 0.0;
+  const max = 10.0;
+
   final label = find.byKey(Key(TestableExpandableSlider.label));
   final slider = find.byKey(Key(TestableExpandableSlider.slider));
   final button = find.byKey(Key(TestableExpandableSlider.button));
@@ -59,7 +62,6 @@ void main() {
     });
 
     testWidgets("when touching the slider, then label changes", (tester) async {
-      final min = 0.0;
       await init(tester, max: 10, min: min, step: 1);
 
       expect(find.text(min.toStringAsFixed(0)), findsOneWidget);
@@ -69,16 +71,13 @@ void main() {
     });
 
     testWidgets("when sliding the slider, then label changes", (tester) async {
-      final min = 0.0;
-      final max = 10.0;
       await init(tester, max: max, min: min, step: 1);
 
       expect(find.text(min.toStringAsFixed(0)), findsOneWidget);
-      expectShrunkSlider(tester, max);
+      await expectShrunkSlider(tester, max);
     });
 
     testWidgets("when long-pressing the slider, label changes", (tester) async {
-      final min = 0.0;
       await init(tester, max: 10, min: min, step: 1);
 
       expect(find.text(min.toStringAsFixed(0)), findsOneWidget);
@@ -90,8 +89,6 @@ void main() {
     });
 
     testWidgets("when long-pressing the slider, it expands", (tester) async {
-      final min = 0.0;
-      final max = 10.0;
       await init(tester, max: max, min: min, step: 1);
 
       expect(find.text(min.toStringAsFixed(0)), findsOneWidget);
@@ -99,13 +96,11 @@ void main() {
       await tester.longPress(slider);
       await tester.pumpAndSettle();
       expect(find.text(5.toStringAsFixed(0)), findsOneWidget);
-      expectExpandedSlider(tester, max);
+      await expectExpandedSlider(tester, max);
     });
 
     testWidgets("when long-pressing the expanded slider, then it shrinks",
         (tester) async {
-      final min = 0.0;
-      final max = 10.0;
       await init(tester, max: max, min: min, step: 1);
 
       expect(find.text(min.toStringAsFixed(0)), findsOneWidget);
@@ -115,13 +110,11 @@ void main() {
       expect(find.text(5.toStringAsFixed(0)), findsOneWidget);
       await tester.longPress(slider);
       await tester.pumpAndSettle();
-      expectShrunkSlider(tester, max);
+      await expectShrunkSlider(tester, max);
     });
 
     testWidgets("when jumping to half value when shrunk, slider keeps shrunk",
         (tester) async {
-      final min = 0.0;
-      final max = 10.0;
       await init(tester, max: max, min: min, step: 1);
 
       expect(find.text(min.toStringAsFixed(0)), findsOneWidget);
@@ -129,13 +122,11 @@ void main() {
       await tester.tap(button);
       await tester.pumpAndSettle();
       expect(find.text(5.toStringAsFixed(0)), findsOneWidget);
-      expectShrunkSlider(tester, max);
+      await expectShrunkSlider(tester, max);
     });
 
     testWidgets("when jumping to half value when expanded, slider updates",
         (tester) async {
-      final min = 0.0;
-      final max = 10.0;
       await init(tester, max: max, min: min, step: 1);
       final sliderOrigin = tester.getTopLeft(slider);
 
@@ -148,7 +139,7 @@ void main() {
       await tester.tap(button);
       await tester.pumpAndSettle();
       expect(find.text((max / 2).toStringAsFixed(0)), findsOneWidget);
-      expectExpandedSlider(tester, max);
+      await expectExpandedSlider(tester, max);
     });
   });
 }

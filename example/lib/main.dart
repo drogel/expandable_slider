@@ -10,7 +10,7 @@ class ExpandableSliderExampleApp extends StatelessWidget {
         theme: ThemeData(primarySwatch: Colors.blue),
         home: Scaffold(
           appBar: AppBar(
-            title: Text("Expandable slider sample app"),
+            title: const Text("Expandable slider sample app"),
           ),
           body: const Example(max: 100, min: 0),
         ),
@@ -40,12 +40,12 @@ class _ExampleState extends State<Example> {
   Widget build(BuildContext context) => Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Text("Current slider value:"),
+          const Text("Current slider value:"),
           Text(
-            (_value).toStringAsFixed(0),
+            _value.toStringAsFixed(0),
             style: Theme.of(context).textTheme.display1,
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           ExpandableSlider(
             value: _value,
             onChanged: _onChanged,
@@ -53,10 +53,10 @@ class _ExampleState extends State<Example> {
             max: widget.max,
             estimatedValueStep: 1,
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           RaisedButton(
             onPressed: () => _onChanged(widget.max / 2),
-            child: Text("Jump to half"),
+            child: const Text("Jump to half"),
           ),
         ],
       );

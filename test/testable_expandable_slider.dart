@@ -36,11 +36,11 @@ class _TestableExpandableSliderState extends State<TestableExpandableSlider> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
-            (_value).toStringAsFixed(0),
-            key: Key(TestableExpandableSlider.label),
+            _value.toStringAsFixed(0),
+            key: const Key(TestableExpandableSlider.label),
           ),
           ExpandableSlider(
-            key: Key(TestableExpandableSlider.slider),
+            key: const Key(TestableExpandableSlider.slider),
             value: _value,
             onChanged: _onChanged,
             min: widget.min,
@@ -48,9 +48,9 @@ class _TestableExpandableSliderState extends State<TestableExpandableSlider> {
             estimatedValueStep: widget.estimatedValueStep,
           ),
           RaisedButton(
-            key: Key(TestableExpandableSlider.button),
+            key: const Key(TestableExpandableSlider.button),
             onPressed: () => _onChanged(widget.max / 2),
-            child: Text("Jump to half"),
+            child: const Text("Jump to half"),
           ),
         ],
       );
