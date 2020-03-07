@@ -1,9 +1,9 @@
 import 'package:expandable_slider/src/view_model.dart';
-
-import 'no_glow_behavior.dart';
-import 'durations.dart' as durations;
-import 'curves.dart' as curves;
+import 'package:expandable_slider/src/durations.dart' as durations;
+import 'package:expandable_slider/src/curves.dart' as curves;
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+
 
 class ExpandableSlider extends StatefulWidget {
   const ExpandableSlider({
@@ -11,6 +11,8 @@ class ExpandableSlider extends StatefulWidget {
     @required this.onChanged,
     this.onChangeStart,
     this.onChangeEnd,
+    this.onExpanded,
+    this.onShrunk,
     this.estimatedValueStep = 1,
     this.shrunkWidth,
     this.inactiveColor,
@@ -28,28 +30,18 @@ class ExpandableSlider extends StatefulWidget {
     this.expandsOnLongPress = true,
     this.expandsOnScale = true,
     this.expandsOnDoubleTap = false,
+    this.scrollBehavior = const ScrollBehavior(),
     Key key,
-  })  : assert(value != null),
-        assert(estimatedValueStep != null,
+  })  : assert(estimatedValueStep != null,
             "This value can't be null, it's needed to calculate divisions"),
-        assert(min != null),
-        assert(max != null),
-        assert(expansionDuration != null),
-        assert(shrinkingDuration != null),
-        assert(snapCenterScrollDuration != null),
-        assert(sideScrollDuration != null),
-        assert(expansionCurve != null),
-        assert(snapCenterScrollCurve != null),
-        assert(sideScrollCurve != null),
-        assert(expandsOnLongPress != null),
-        assert(expandsOnScale != null),
-        assert(expandsOnDoubleTap != null),
         super(key: key);
 
   final double value;
   final void Function(double) onChanged;
   final void Function(double) onChangeStart;
   final void Function(double) onChangeEnd;
+  final void Function() onExpanded;
+  final void Function() onShrunk;
   final double estimatedValueStep;
   final Color activeColor;
   final Color inactiveColor;
@@ -67,6 +59,7 @@ class ExpandableSlider extends StatefulWidget {
   final bool expandsOnLongPress;
   final bool expandsOnScale;
   final bool expandsOnDoubleTap;
+  final ScrollBehavior scrollBehavior;
 
   @override
   _ExpandableSliderState createState() => _ExpandableSliderState();
@@ -129,7 +122,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
             onDoubleTap: widget.expandsOnDoubleTap ? _toggleExpansion : null,
             child: LayoutBuilder(
               builder: (_, constraints) => ScrollConfiguration(
-                behavior: const NoGlowBehavior(),
+                behavior: widget.scrollBehavior,
                 child: SingleChildScrollView(
                   controller: _scroll,
                   scrollDirection: Axis.horizontal,
@@ -163,9 +156,17 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     super.dispose();
   }
 
-  void _expand() => _expansion.forward();
+  void _expand() {
+    _expansion.forward();
+    if (widget.onExpanded != null) widget.onExpanded();
+    HapticFeedback.mediumImpact();
+  }
 
-  void _shrink() => _expansion.reverse();
+  void _shrink() {
+    _expansion.reverse();
+    if (widget.onShrunk != null) widget.onShrunk();
+    HapticFeedback.mediumImpact();
+  }
 
   void _toggleExpansionScale(ScaleUpdateDetails details) {
     if (details.horizontalScale > 1) {

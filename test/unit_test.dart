@@ -50,7 +50,7 @@ void main() {
   }
 
   group("Given a normalized ExpandableSliderViewModel", () {
-    setUp(() => viewModel = ExpandableSliderViewModel(min: 0, max: 1));
+    setUp(() => viewModel = const ExpandableSliderViewModel(min: 0, max: 1));
     tearDown(() => viewModel = null);
 
     group("when computeDivisions is called with exact number of divisions", () {
