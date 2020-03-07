@@ -3,10 +3,19 @@ import 'package:expandable_slider/src/durations.dart' as durations;
 import 'package:expandable_slider/src/curves.dart' as curves;
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 enum _SliderType { material, adaptive }
 
+/// A slider that can be expanded to select values with more precision.
+///
+/// This widget is based on Flutter's [Slider] widget.
 class ExpandableSlider extends StatefulWidget {
+  /// Creates a Material Design slider that can be expanded to select values
+  /// with more precision.
+  ///
+  /// See also:
+  ///   * [Slider], which is a widget used to select from a range of values.
   const ExpandableSlider({
     @required this.value,
     @required this.onChanged,
@@ -21,11 +30,11 @@ class ExpandableSlider extends StatefulWidget {
     this.min = 0,
     this.max = 1,
     this.expansionDuration = durations.mediumPresenting,
-    this.shrinkingDuration = durations.mediumDismissing,
+    this.shrinkageDuration = durations.mediumDismissing,
     this.snapCenterScrollDuration = durations.longPresenting,
     this.sideScrollDuration = durations.shortPresenting,
     this.expansionCurve = curves.exiting,
-    this.shrinkingCurve = curves.entering,
+    this.shrinkageCurve = curves.entering,
     this.snapCenterScrollCurve = curves.main,
     this.sideScrollCurve = curves.main,
     this.expandsOnLongPress = true,
@@ -35,9 +44,18 @@ class ExpandableSlider extends StatefulWidget {
     Key key,
   })  : _sliderType = _SliderType.material,
         assert(estimatedValueStep != null,
-            "This value can't be null, it's needed to calculate divisions"),
+            "Needed to calculate the slider's divisions"),
         super(key: key);
 
+  /// Creates an [ExpandableSlider] that takes the appearance of a
+  /// [CupertinoSlider] if the target platform is iOS, or that of a Material
+  /// Design slider otherwise.
+  ///
+  /// If a [CupertinoSlider] is created, [inactiveColor] is ignored.
+  ///
+  /// See also:
+  ///   * [Slider.adaptive], which creates a slider that adapts its appearance
+  ///   to the target platform.
   const ExpandableSlider.adaptive({
     @required this.value,
     @required this.onChanged,
@@ -52,11 +70,11 @@ class ExpandableSlider extends StatefulWidget {
     this.min = 0,
     this.max = 1,
     this.expansionDuration = durations.mediumPresenting,
-    this.shrinkingDuration = durations.mediumDismissing,
+    this.shrinkageDuration = durations.mediumDismissing,
     this.snapCenterScrollDuration = durations.longPresenting,
     this.sideScrollDuration = durations.shortPresenting,
     this.expansionCurve = curves.exiting,
-    this.shrinkingCurve = curves.entering,
+    this.shrinkageCurve = curves.entering,
     this.snapCenterScrollCurve = curves.main,
     this.sideScrollCurve = curves.main,
     this.expandsOnLongPress = true,
@@ -66,7 +84,7 @@ class ExpandableSlider extends StatefulWidget {
     Key key,
   })  : _sliderType = _SliderType.adaptive,
         assert(estimatedValueStep != null,
-            "This value can't be null, it's needed to calculate divisions"),
+            "Needed to calculate the slider's divisions"),
         super(key: key);
 
   /// The currently selected value for this slider.
@@ -128,20 +146,75 @@ class ExpandableSlider extends StatefulWidget {
   /// If the [max] is equal to the [min], then the slider is disabled.
   final double max;
 
-  
+  /// If non-null, requires the slider to have exactly this width when shrunk.
+  ///
+  /// If null, the shrunk slider will try to occupy as much space as possible.
   final double shrunkWidth;
+
+  /// The length of time the slider expansion animation animation should last.
+  ///
+  /// If [shrinkageDuration] is specified, then [expansionDuration] is only
+  /// used when expanding. However, if [shrinkageDuration] is null, it
+  /// specifies the duration for both the shrinkage and the expansion animation.
   final Duration expansionDuration;
-  final Duration shrinkingDuration;
+
+  /// The length of time the shrinkage animation should last.
+  ///
+  /// The value of [expansionDuration] us used if [shrinkageDuration] is set to
+  /// null.
+  final Duration shrinkageDuration;
+
+  /// The duration of the scrolling animation that occurs when the slider is
+  /// expanded and the [value] changes in such a way that would cause the slider
+  /// thumb to travel as many pixels as 0.875 times the width of the viewport.
+  ///
+  /// Must not be zero.
   final Duration snapCenterScrollDuration;
+
+  /// The duration of the scrolling animation that occurs when the slider is
+  /// expanded and the [value] changes in such a way that would cause the slider
+  /// thumb to exit the viewport, but not by travelling as many pixels as
+  /// 0.875 times the width of the viewport.
+  ///
+  /// Must not be zero.
   final Duration sideScrollDuration;
+
+  /// The curve to use in the expansion animation.
+  ///
+  /// If [shrinkageCurve] is null, this curve will also be used in the shrinkage
+  /// animation.
   final Curve expansionCurve;
-  final Curve shrinkingCurve;
+
+  /// The curve to use in the shrinkage animation.
+  ///
+  /// If null, [expansionCurve] will be used in the shrinkage animation instead.
+  final Curve shrinkageCurve;
+
+  /// The curve to use in the scrolling animation that occurs when the slider
+  /// is expanded and the [value] changes in such a way that would cause
+  /// the slider to travel as many pixels as 0.875 times the width of the
+  /// viewport.
   final Curve snapCenterScrollCurve;
+
+  /// The curve to use in the scrolling animation that occurs when the slider is
+  /// expanded and the [value] changes in such a way that would cause the slider
+  /// thumb to exit the viewport, but not by travelling as many pixels as
+  /// 0.875 times the width of the viewport.
   final Curve sideScrollCurve;
+
+  /// Whether to expand or shrink the slider when performing a long press on it.
   final bool expandsOnLongPress;
+
+  /// Whether to expand or shrink the slider when performing a scale gesture on
+  /// it.
   final bool expandsOnScale;
+
+  /// Whether to expand or shrink the slider when performing a double tap on it.
   final bool expandsOnDoubleTap;
+
+  /// How the [ScrollView] that wraps the slider should behave.
   final ScrollBehavior scrollBehavior;
+
   final _SliderType _sliderType;
 
   @override
@@ -191,7 +264,9 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     if (oldWidget.value != widget.value && _isShrunk) {
       _updateExpansionFocalValue();
     }
-    _shouldSnapCenter(widget.value, oldWidget.value);
+    if (oldWidget.value != widget.value) {
+      _shouldSnapCenter(widget.value, oldWidget.value);
+    }
     super.didUpdateWidget(oldWidget);
   }
 
@@ -345,13 +420,13 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     _expansion = AnimationController(
       vsync: this,
       duration: widget.expansionDuration,
-      reverseDuration: widget.shrinkingDuration,
+      reverseDuration: widget.shrinkageDuration,
     );
     _expansionAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _expansion,
         curve: widget.expansionCurve,
-        reverseCurve: widget.shrinkingCurve,
+        reverseCurve: widget.shrinkageCurve,
       ),
     );
     _expansionAnimation.addListener(_updateExpansionTransition);
