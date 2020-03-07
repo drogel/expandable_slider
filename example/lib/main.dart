@@ -46,7 +46,7 @@ class _ExampleState extends State<Example> {
             style: Theme.of(context).textTheme.display1,
           ),
           const SizedBox(height: 32),
-          ExpandableSlider(
+          ExpandableSlider.adaptive(
             value: _value,
             onChanged: _onChanged,
             min: widget.min,

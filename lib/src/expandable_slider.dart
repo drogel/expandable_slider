@@ -4,6 +4,7 @@ import 'package:expandable_slider/src/curves.dart' as curves;
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
+enum _SliderType { material, adaptive }
 
 class ExpandableSlider extends StatefulWidget {
   const ExpandableSlider({
@@ -32,7 +33,39 @@ class ExpandableSlider extends StatefulWidget {
     this.expandsOnDoubleTap = false,
     this.scrollBehavior = const ScrollBehavior(),
     Key key,
-  })  : assert(estimatedValueStep != null,
+  })  : _sliderType = _SliderType.material,
+        assert(estimatedValueStep != null,
+            "This value can't be null, it's needed to calculate divisions"),
+        super(key: key);
+
+  const ExpandableSlider.adaptive({
+    @required this.value,
+    @required this.onChanged,
+    this.onChangeStart,
+    this.onChangeEnd,
+    this.onExpanded,
+    this.onShrunk,
+    this.estimatedValueStep = 1,
+    this.shrunkWidth,
+    this.inactiveColor,
+    this.activeColor,
+    this.min = 0,
+    this.max = 1,
+    this.expansionDuration = durations.mediumPresenting,
+    this.shrinkingDuration = durations.mediumDismissing,
+    this.snapCenterScrollDuration = durations.longPresenting,
+    this.sideScrollDuration = durations.shortPresenting,
+    this.expansionCurve = curves.exiting,
+    this.shrinkingCurve = curves.entering,
+    this.snapCenterScrollCurve = curves.main,
+    this.sideScrollCurve = curves.main,
+    this.expandsOnLongPress = true,
+    this.expandsOnScale = true,
+    this.expandsOnDoubleTap = false,
+    this.scrollBehavior = const ScrollBehavior(),
+    Key key,
+  })  : _sliderType = _SliderType.adaptive,
+        assert(estimatedValueStep != null,
             "This value can't be null, it's needed to calculate divisions"),
         super(key: key);
 
@@ -60,6 +93,7 @@ class ExpandableSlider extends StatefulWidget {
   final bool expandsOnScale;
   final bool expandsOnDoubleTap;
   final ScrollBehavior scrollBehavior;
+  final _SliderType _sliderType;
 
   @override
   _ExpandableSliderState createState() => _ExpandableSliderState();
@@ -130,17 +164,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
                   child: SizedBox(
                     width: _shrunkWidth +
                         _expansionAnimation.value * _expandedExtraWidth,
-                    child: Slider(
-                      value: widget.value,
-                      activeColor: widget.activeColor,
-                      inactiveColor: widget.inactiveColor,
-                      onChanged: _onChanged,
-                      onChangeStart: widget.onChangeStart,
-                      onChangeEnd: widget.onChangeEnd,
-                      max: widget.max,
-                      min: widget.min,
-                      divisions: _divisions,
-                    ),
+                    child: _buildSlider(),
                   ),
                 ),
               ),
@@ -154,6 +178,36 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     _expansion.dispose();
     _viewModel = null;
     super.dispose();
+  }
+
+  Widget _buildSlider() {
+    switch (widget._sliderType) {
+      case _SliderType.material:
+        return Slider(
+          value: widget.value,
+          activeColor: widget.activeColor,
+          inactiveColor: widget.inactiveColor,
+          onChanged: _onChanged,
+          onChangeStart: widget.onChangeStart,
+          onChangeEnd: widget.onChangeEnd,
+          max: widget.max,
+          min: widget.min,
+          divisions: _divisions,
+        );
+      case _SliderType.adaptive:
+        return Slider.adaptive(
+          value: widget.value,
+          activeColor: widget.activeColor,
+          inactiveColor: widget.inactiveColor,
+          onChanged: _onChanged,
+          onChangeStart: widget.onChangeStart,
+          onChangeEnd: widget.onChangeEnd,
+          max: widget.max,
+          min: widget.min,
+          divisions: _divisions,
+        );
+    }
+    return null;
   }
 
   void _expand() {
