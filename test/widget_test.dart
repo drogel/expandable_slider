@@ -12,6 +12,7 @@ void main() {
     @required double max,
     @required double min,
     @required double step,
+    bool adaptive = false,
   }) =>
       tester.pumpWidget(
         MediaQuery(
@@ -32,9 +33,9 @@ void main() {
   const min = 0.0;
   const max = 10.0;
 
-  final label = find.byKey(Key(TestableExpandableSlider.label));
-  final slider = find.byKey(Key(TestableExpandableSlider.slider));
-  final button = find.byKey(Key(TestableExpandableSlider.button));
+  final label = find.byKey(const Key(TestableExpandableSlider.label));
+  final slider = find.byKey(const Key(TestableExpandableSlider.slider));
+  final button = find.byKey(const Key(TestableExpandableSlider.button));
 
   Future<void> expectShrunkSlider(WidgetTester tester, double max) async {
     // Tester starts sliding from middle of slider.
@@ -56,6 +57,14 @@ void main() {
   group("Given a ExpandableSlider with an int associated value label", () {
     testWidgets("when loaded, then label and slider appear", (tester) async {
       await init(tester, max: 10, min: 0, step: 1);
+
+      expect(label, findsOneWidget);
+      expect(slider, findsOneWidget);
+    });
+
+    testWidgets("when loaded adaptive, then label and slider appear",
+        (tester) async {
+      await init(tester, max: 10, min: 0, step: 1, adaptive: true);
 
       expect(label, findsOneWidget);
       expect(slider, findsOneWidget);

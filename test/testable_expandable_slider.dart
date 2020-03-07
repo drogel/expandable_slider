@@ -6,6 +6,7 @@ class TestableExpandableSlider extends StatefulWidget {
     @required this.max,
     @required this.min,
     @required this.estimatedValueStep,
+    this.adaptive = false,
     Key key,
   }) : super(key: key);
 
@@ -16,6 +17,7 @@ class TestableExpandableSlider extends StatefulWidget {
   final double max;
   final double min;
   final double estimatedValueStep;
+  final bool adaptive;
 
   @override
   _TestableExpandableSliderState createState() =>
@@ -39,14 +41,7 @@ class _TestableExpandableSliderState extends State<TestableExpandableSlider> {
             _value.toStringAsFixed(0),
             key: const Key(TestableExpandableSlider.label),
           ),
-          ExpandableSlider(
-            key: const Key(TestableExpandableSlider.slider),
-            value: _value,
-            onChanged: _onChanged,
-            min: widget.min,
-            max: widget.max,
-            estimatedValueStep: widget.estimatedValueStep,
-          ),
+          _buildSlider(),
           RaisedButton(
             key: const Key(TestableExpandableSlider.button),
             onPressed: () => _onChanged(widget.max / 2),
@@ -56,4 +51,22 @@ class _TestableExpandableSliderState extends State<TestableExpandableSlider> {
       );
 
   void _onChanged(double newValue) => setState(() => _value = newValue);
+
+  Widget _buildSlider() => widget.adaptive
+      ? ExpandableSlider.adaptive(
+          key: const Key(TestableExpandableSlider.slider),
+          value: _value,
+          onChanged: _onChanged,
+          min: widget.min,
+          max: widget.max,
+          estimatedValueStep: widget.estimatedValueStep,
+        )
+      : ExpandableSlider(
+          key: const Key(TestableExpandableSlider.slider),
+          value: _value,
+          onChanged: _onChanged,
+          min: widget.min,
+          max: widget.max,
+          estimatedValueStep: widget.estimatedValueStep,
+        );
 }
