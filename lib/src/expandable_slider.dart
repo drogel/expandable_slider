@@ -1,6 +1,5 @@
 import 'package:expandable_slider/src/view_model.dart';
 
-import 'no_glow_behavior.dart';
 import 'durations.dart' as durations;
 import 'curves.dart' as curves;
 import 'package:flutter/material.dart';
@@ -28,6 +27,7 @@ class ExpandableSlider extends StatefulWidget {
     this.expandsOnLongPress = true,
     this.expandsOnScale = true,
     this.expandsOnDoubleTap = false,
+    this.scrollBehavior = const ScrollBehavior(),
     Key key,
   })  : assert(value != null),
         assert(estimatedValueStep != null,
@@ -67,6 +67,7 @@ class ExpandableSlider extends StatefulWidget {
   final bool expandsOnLongPress;
   final bool expandsOnScale;
   final bool expandsOnDoubleTap;
+  final ScrollBehavior scrollBehavior;
 
   @override
   _ExpandableSliderState createState() => _ExpandableSliderState();
@@ -129,7 +130,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
             onDoubleTap: widget.expandsOnDoubleTap ? _toggleExpansion : null,
             child: LayoutBuilder(
               builder: (_, constraints) => ScrollConfiguration(
-                behavior: const NoGlowBehavior(),
+                behavior: widget.scrollBehavior,
                 child: SingleChildScrollView(
                   controller: _scroll,
                   scrollDirection: Axis.horizontal,

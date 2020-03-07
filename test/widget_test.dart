@@ -16,8 +16,9 @@ void main() {
       tester.pumpWidget(
         MediaQuery(
           data: MediaQueryData.fromWindow(window),
-          child: MaterialApp(
-            home: Scaffold(
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: Scaffold(
               body: TestableExpandableSlider(
                 max: max,
                 min: min,
@@ -31,6 +32,23 @@ void main() {
   final label = find.byKey(Key(TestableExpandableSlider.label));
   final slider = find.byKey(Key(TestableExpandableSlider.slider));
   final button = find.byKey(Key(TestableExpandableSlider.button));
+
+  Future<void> expectShrunkSlider(WidgetTester tester, double max) async {
+    // Tester starts sliding from middle of slider.
+    final sliderSize = tester.getSize(slider);
+    await tester.drag(slider, Offset(sliderSize.width / max, 0));
+    await tester.pumpAndSettle();
+    expect(find.text(6.toStringAsFixed(0)), findsOneWidget);
+  }
+
+  Future<void> expectExpandedSlider(WidgetTester tester, double max) async {
+    // Tester has long-pressed at middle of slider,
+    // it takes more pixels to change value by 1.
+    final sliderSize = tester.getSize(slider);
+    await tester.drag(slider, Offset(3 * sliderSize.width / max, 0));
+    await tester.pumpAndSettle();
+    expect(find.text(6.toStringAsFixed(0)), findsOneWidget);
+  }
 
   group("Given a ExpandableSlider with an int associated value label", () {
     testWidgets("when loaded, then label and slider appear", (tester) async {
@@ -54,14 +72,9 @@ void main() {
       final min = 0.0;
       final max = 10.0;
       await init(tester, max: max, min: min, step: 1);
-      final sliderSize = tester.getSize(slider);
 
       expect(find.text(min.toStringAsFixed(0)), findsOneWidget);
-
-      // Tester starts sliding from middle of slider.
-      await tester.drag(slider, Offset(sliderSize.width / max, 0));
-      await tester.pumpAndSettle();
-      expect(find.text(6.toStringAsFixed(0)), findsOneWidget);
+      expectShrunkSlider(tester, max);
     });
 
     testWidgets("when long-pressing the slider, label changes", (tester) async {
@@ -80,20 +93,13 @@ void main() {
       final min = 0.0;
       final max = 10.0;
       await init(tester, max: max, min: min, step: 1);
-      final sliderSize = tester.getSize(slider);
 
       expect(find.text(min.toStringAsFixed(0)), findsOneWidget);
 
-      // Tester has long-pressed at middle of slider.
       await tester.longPress(slider);
       await tester.pumpAndSettle();
       expect(find.text(5.toStringAsFixed(0)), findsOneWidget);
-
-      // Tester has long-pressed at middle of slider,
-      // it takes more pixels to change value by 1.
-      await tester.drag(slider, Offset(3 * sliderSize.width / max, 0));
-      await tester.pumpAndSettle();
-      expect(find.text(6.toStringAsFixed(0)), findsOneWidget);
+      expectExpandedSlider(tester, max);
     });
 
     testWidgets("when long-pressing the expanded slider, then it shrinks",
@@ -101,22 +107,48 @@ void main() {
       final min = 0.0;
       final max = 10.0;
       await init(tester, max: max, min: min, step: 1);
-      final sliderSize = tester.getSize(slider);
 
       expect(find.text(min.toStringAsFixed(0)), findsOneWidget);
 
-      // Tester has long-pressed at middle of slider.
       await tester.longPress(slider);
       await tester.pumpAndSettle();
       expect(find.text(5.toStringAsFixed(0)), findsOneWidget);
       await tester.longPress(slider);
       await tester.pumpAndSettle();
+      expectShrunkSlider(tester, max);
+    });
 
-      // Tester has long-pressed at middle of slider,
-      // it takes more pixels to change value by 1.
-      await tester.drag(slider, Offset(sliderSize.width / max, 0));
+    testWidgets("when jumping to half value when shrunk, slider keeps shrunk",
+        (tester) async {
+      final min = 0.0;
+      final max = 10.0;
+      await init(tester, max: max, min: min, step: 1);
+
+      expect(find.text(min.toStringAsFixed(0)), findsOneWidget);
+
+      await tester.tap(button);
       await tester.pumpAndSettle();
-      expect(find.text(6.toStringAsFixed(0)), findsOneWidget);
+      expect(find.text(5.toStringAsFixed(0)), findsOneWidget);
+      expectShrunkSlider(tester, max);
+    });
+
+    testWidgets("when jumping to half value when expanded, slider updates",
+        (tester) async {
+      final min = 0.0;
+      final max = 10.0;
+      await init(tester, max: max, min: min, step: 1);
+      final sliderOrigin = tester.getTopLeft(slider);
+
+      expect(find.text(min.toStringAsFixed(0)), findsOneWidget);
+
+      await tester.longPressAt(sliderOrigin);
+      await tester.pumpAndSettle();
+      expect(find.text(min.toStringAsFixed(0)), findsOneWidget);
+
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+      expect(find.text((max / 2).toStringAsFixed(0)), findsOneWidget);
+      expectExpandedSlider(tester, max);
     });
   });
 }

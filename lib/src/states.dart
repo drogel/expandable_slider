@@ -1,3 +1,0 @@
-class SliderState {
-  const SliderState();
-}
