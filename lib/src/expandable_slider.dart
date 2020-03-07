@@ -12,8 +12,8 @@ class ExpandableSlider extends StatefulWidget {
     @required this.onChanged,
     this.onChangeStart,
     this.onChangeEnd,
-    this.onExpanded,
-    this.onShrunk,
+    this.onExpansionStart,
+    this.onShrinkingStart,
     this.estimatedValueStep = 1,
     this.shrunkWidth,
     this.inactiveColor,
@@ -43,8 +43,8 @@ class ExpandableSlider extends StatefulWidget {
     @required this.onChanged,
     this.onChangeStart,
     this.onChangeEnd,
-    this.onExpanded,
-    this.onShrunk,
+    this.onExpansionStart,
+    this.onShrinkingStart,
     this.estimatedValueStep = 1,
     this.shrunkWidth,
     this.inactiveColor,
@@ -69,17 +69,66 @@ class ExpandableSlider extends StatefulWidget {
             "This value can't be null, it's needed to calculate divisions"),
         super(key: key);
 
+  /// The currently selected value for this slider.
+  ///
+  /// The slider's thumb is drawn at a position that corresponds to this value.
   final double value;
+
+  /// Called during a drag when the user is selecting a new value.
   final void Function(double) onChanged;
+
+  /// Called when the user starts selecting a new value for the slider.
   final void Function(double) onChangeStart;
+
+  /// Called when the user is done selecting a new value for the slider.
   final void Function(double) onChangeEnd;
-  final void Function() onExpanded;
-  final void Function() onShrunk;
+
+  /// Called when the slider starts an expansion animation.
+  final void Function() onExpansionStart;
+
+  /// Called when the slider starts a shrinking animation.
+  final void Function() onShrinkingStart;
+
+  /// The estimated value change when the slider thumb jumps between divisions.
+  ///
+  /// The divisions that this [ExpandableSlider] have are computed based on this
+  /// value, as the truncated division between ([max] - [min]) and this value.
+  /// It is preferred to set this value such that ([max] - [min]) is divisible
+  /// by this value, so that every jump between divisions always implies the
+  /// same change in the slider's [value].
+  ///
+  /// For example, if [max] == 11, [min] == 0, and [estimatedValueStep] == 2,
+  /// some jumps between divisions will imply a change in [value] of 2, and some
+  /// of them will imply a change in [value] of 3.
   final double estimatedValueStep;
+
+  /// The color to use for the portion of the slider track that is active.
+  ///
+  /// The "active" side of the slider is the side between the thumb and the
+  /// minimum value.
   final Color activeColor;
+
+  /// The color for the inactive portion of the slider track.
+  ///
+  /// The "inactive" side of the slider is the side between the thumb and the
+  /// maximum value.
   final Color inactiveColor;
+
+  /// The minimum value the user can select.
+  ///
+  /// Defaults to 0.0. Must be less than or equal to [max].
+  ///
+  /// If the [max] is equal to the [min], then the slider is disabled.
   final double min;
+
+  /// The maximum value the user can select.
+  ///
+  /// Defaults to 1.0. Must be greater than or equal to [min].
+  ///
+  /// If the [max] is equal to the [min], then the slider is disabled.
   final double max;
+
+  
   final double shrunkWidth;
   final Duration expansionDuration;
   final Duration shrinkingDuration;
@@ -211,14 +260,14 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   }
 
   void _expand() {
+    if (widget.onExpansionStart != null) widget.onExpansionStart();
     _expansion.forward();
-    if (widget.onExpanded != null) widget.onExpanded();
     HapticFeedback.mediumImpact();
   }
 
   void _shrink() {
+    if (widget.onShrinkingStart != null) widget.onShrinkingStart();
     _expansion.reverse();
-    if (widget.onShrunk != null) widget.onShrunk();
     HapticFeedback.mediumImpact();
   }
 
