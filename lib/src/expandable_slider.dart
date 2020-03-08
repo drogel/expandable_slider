@@ -60,7 +60,7 @@ class ExpandableSlider extends StatefulWidget {
     this.onChangeStart,
     this.onChangeEnd,
     this.onExpansionStart,
-    this.onShrinkingStart,
+    this.onShrinkageStart,
     this.estimatedValueStep = 1,
     this.shrunkWidth,
     this.inactiveColor,
@@ -92,7 +92,7 @@ class ExpandableSlider extends StatefulWidget {
   /// If a [CupertinoSlider] is created, [inactiveColor] is ignored.
   ///
   /// See also:
-  /// 
+  ///
   ///  * [Slider.adaptive], which creates a slider that adapts its appearance
   ///  to the target platform.
   const ExpandableSlider.adaptive({
@@ -101,7 +101,7 @@ class ExpandableSlider extends StatefulWidget {
     this.onChangeStart,
     this.onChangeEnd,
     this.onExpansionStart,
-    this.onShrinkingStart,
+    this.onShrinkageStart,
     this.estimatedValueStep = 1,
     this.shrunkWidth,
     this.inactiveColor,
@@ -143,8 +143,8 @@ class ExpandableSlider extends StatefulWidget {
   /// Called when the slider starts an expansion animation.
   final void Function() onExpansionStart;
 
-  /// Called when the slider starts a shrinking animation.
-  final void Function() onShrinkingStart;
+  /// Called when the slider starts a shrinkage animation.
+  final void Function() onShrinkageStart;
 
   /// The estimated value change when the slider thumb jumps between divisions.
   ///
@@ -406,7 +406,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   }
 
   void _shrink() {
-    if (widget.onShrinkingStart != null) widget.onShrinkingStart();
+    if (widget.onShrinkageStart != null) widget.onShrinkageStart();
     _expansion.reverse();
     HapticFeedback.mediumImpact();
   }
