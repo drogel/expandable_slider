@@ -16,13 +16,13 @@ A Flutter slider that can be expanded to select values with more precision.
 * When expanded, `ExpandableSlider` will always have visible divisions whose spacing will always be enough for the user to move the slider thumb between divisions easily.
 * Customizable `min`, `max`, and value change between divisions.
 * Customizable expansion, shrinkage and expanded scrolling animations.
-* Can toggle expansion with a long press, a scale gesture, or a double tap.
+* Expansion can be toggled with a long press, a scale gesture, or a double tap.
 * Just like Flutter's `Slider`, the appearance can be fully customized with `SliderTheme` and `SliderThemeData`.
 
 ## Usage
 
 This package exposes an `ExpandableSlider` stateful widget for you to use wherever
-you want, just like a regular `Slider`
+you want, just like a regular `Slider`.
 
 ```dart
     Widget build(BuildContext context) => ExpandableSlider(
@@ -34,10 +34,8 @@ you want, just like a regular `Slider`
       );
 ```
 
-`KeyboardDismisser` takes a `gestures` parameter, which is a list of `GestureType` enum cases. This
-way, you can pass any gesture you like for the keyboard dismissal. By default, `KeyboardDismisser`
-will dismiss the keyboard when tapping outside of it, but it handles several gestures at the 
-same time.
+By default, the expansion will be toggled with either a long press on the slider or a scale gesture.
+Check out the `example` app in the project repository to find out more.
 
 ## Getting started
 
