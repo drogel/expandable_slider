@@ -37,28 +37,30 @@ class _ExampleState extends State<Example> {
   }
 
   @override
-  Widget build(BuildContext context) => Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          const Text("Current slider value:"),
-          Text(
-            _value.toStringAsFixed(0),
-            style: Theme.of(context).textTheme.display1,
-          ),
-          const SizedBox(height: 32),
-          ExpandableSlider.adaptive(
-            value: _value,
-            onChanged: _onChanged,
-            min: widget.min,
-            max: widget.max,
-            estimatedValueStep: 1,
-          ),
-          const SizedBox(height: 32),
-          RaisedButton(
-            onPressed: () => _onChanged(widget.max / 2),
-            child: const Text("Jump to half"),
-          ),
-        ],
+  Widget build(BuildContext context) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text("Current slider value:"),
+            Text(
+              _value.toStringAsFixed(0),
+              style: Theme.of(context).textTheme.display1,
+            ),
+            const SizedBox(height: 32),
+            ExpandableSlider.adaptive(
+              value: _value,
+              onChanged: _onChanged,
+              min: widget.min,
+              max: widget.max,
+              estimatedValueStep: 1,
+            ),
+            const SizedBox(height: 32),
+            RaisedButton(
+              onPressed: () => _onChanged(widget.max / 2),
+              child: const Text("Jump to half"),
+            ),
+          ],
+        ),
       );
 
   void _onChanged(double newValue) => setState(() => _value = newValue);

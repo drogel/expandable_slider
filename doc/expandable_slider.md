@@ -37,6 +37,9 @@ becomes visible again. This animation can be either:
   as many pixels as 0.875 times the width of the viewport. This animation
   does not cause the slider thumb to return to the center of the viewport.
 
+Just like with `Slider`, the visual appearance can be finely tuned with
+`SliderTheme` and `SliderThemeData`.
+
 ### Constructors
 
 ```dart

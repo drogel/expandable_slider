@@ -42,6 +42,9 @@ enum _SliderType { material, adaptive }
 ///   as many pixels as 0.875 times the width of the viewport. This animation
 ///   does not cause the slider thumb to return to the center of the viewport.
 ///
+/// Just like with [Slider], the visual appearance can be finely tuned with
+/// [SliderTheme] and [SliderThemeData].
+///
 /// See also:
 ///
 ///  * [Slider], which is a widget used to select from a range of values.
