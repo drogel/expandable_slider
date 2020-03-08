@@ -124,12 +124,16 @@ class ExpandableSlider extends StatefulWidget {
   ///
   /// The "active" side of the slider is the side between the thumb and the
   /// minimum value.
+  ///
+  /// Defaults to the active track color of the current [SliderTheme].
   final Color activeColor;
 
   /// The color for the inactive portion of the slider track.
   ///
   /// The "inactive" side of the slider is the side between the thumb and the
   /// maximum value.
+  ///
+  /// Defaults to the inactive track color of the current [SliderTheme].
   final Color inactiveColor;
 
   /// The minimum value the user can select.
@@ -156,19 +160,23 @@ class ExpandableSlider extends StatefulWidget {
   /// If [shrinkageDuration] is specified, then [expansionDuration] is only
   /// used when expanding. However, if [shrinkageDuration] is null, it
   /// specifies the duration for both the shrinkage and the expansion animation.
+  ///
+  /// Defaults to 250 milliseconds.
   final Duration expansionDuration;
 
   /// The length of time the shrinkage animation should last.
   ///
   /// The value of [expansionDuration] us used if [shrinkageDuration] is set to
   /// null.
+  ///
+  /// Defaults to 200 milliseconds.
   final Duration shrinkageDuration;
 
   /// The duration of the scrolling animation that occurs when the slider is
   /// expanded and the [value] changes in such a way that would cause the slider
   /// thumb to travel as many pixels as 0.875 times the width of the viewport.
   ///
-  /// Must not be zero.
+  /// Must not be zero. Defaults to 450 milliseconds.
   final Duration snapCenterScrollDuration;
 
   /// The duration of the scrolling animation that occurs when the slider is
@@ -176,30 +184,38 @@ class ExpandableSlider extends StatefulWidget {
   /// thumb to exit the viewport, but not by travelling as many pixels as
   /// 0.875 times the width of the viewport.
   ///
-  /// Must not be zero.
+  /// Must not be zero. Defaults to 150 milliseconds.
   final Duration sideScrollDuration;
 
   /// The curve to use in the expansion animation.
   ///
   /// If [shrinkageCurve] is null, this curve will also be used in the shrinkage
   /// animation.
+  ///
+  /// Defaults to Cubic(0.4, 0, 1, 1).
   final Curve expansionCurve;
 
   /// The curve to use in the shrinkage animation.
   ///
   /// If null, [expansionCurve] will be used in the shrinkage animation instead.
+  ///
+  /// Defaults to Cubic(0, 0, 0.2, 1).
   final Curve shrinkageCurve;
 
   /// The curve to use in the scrolling animation that occurs when the slider
   /// is expanded and the [value] changes in such a way that would cause
   /// the slider to travel as many pixels as 0.875 times the width of the
   /// viewport.
+  ///
+  /// Defaults to [Curves.fastOutSlowIn].
   final Curve snapCenterScrollCurve;
 
   /// The curve to use in the scrolling animation that occurs when the slider is
   /// expanded and the [value] changes in such a way that would cause the slider
   /// thumb to exit the viewport, but not by travelling as many pixels as
   /// 0.875 times the width of the viewport.
+  ///
+  /// Defaults to [Curves.fastOutSlowIn].
   final Curve sideScrollCurve;
 
   /// Whether to expand or shrink the slider when performing a long press on it.
@@ -219,6 +235,8 @@ class ExpandableSlider extends StatefulWidget {
   final bool expandsOnDoubleTap;
 
   /// How the [ScrollView] that wraps the slider should behave.
+  ///
+  /// Defaults to [ScrollBehavior].
   final ScrollBehavior scrollBehavior;
 
   final _SliderType _sliderType;
