@@ -4,6 +4,7 @@
 
 A Flutter slider that can be expanded to select values with more precision.
 
+[![Pub](https://img.shields.io/pub/v/expandable_slider.svg)](https://pub.dartlang.org/packages/expandable_slider)
 [![Build Status](https://app.bitrise.io/app/1cf17bc69d166d73/status.svg?token=28m4nTQED5nYVupzERAn_g&branch=master)](https://app.bitrise.io/app/1cf17bc69d166d73)
 [![codecov](https://codecov.io/gh/drogel/expandable_slider/branch/master/graph/badge.svg?token=I205PEQRLL)](https://codecov.io/gh/drogel/expandable_slider)
 
