@@ -1,6 +1,6 @@
 name: expandable_slider
 description: A Flutter slider that can be expanded to select values with more precision.
-version: 0.0.1
+version: 1.0.0
 author:
 homepage:
 

@@ -7,6 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'testable_expandable_slider.dart';
 
 void main() {
+  runTests(adaptive: true);
+  runTests(adaptive: false);
+}
+
+void runTests({@required bool adaptive}) {
   Future<void> init(
     tester, {
     @required double max,
@@ -23,6 +28,7 @@ void main() {
                 max: max,
                 min: min,
                 estimatedValueStep: step,
+                adaptive: adaptive,
               ),
             ),
           ),
@@ -32,9 +38,9 @@ void main() {
   const min = 0.0;
   const max = 10.0;
 
-  final label = find.byKey(Key(TestableExpandableSlider.label));
-  final slider = find.byKey(Key(TestableExpandableSlider.slider));
-  final button = find.byKey(Key(TestableExpandableSlider.button));
+  final label = find.byKey(const Key(TestableExpandableSlider.label));
+  final slider = find.byKey(const Key(TestableExpandableSlider.slider));
+  final button = find.byKey(const Key(TestableExpandableSlider.button));
 
   Future<void> expectShrunkSlider(WidgetTester tester, double max) async {
     // Tester starts sliding from middle of slider.
