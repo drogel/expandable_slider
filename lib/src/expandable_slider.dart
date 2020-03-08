@@ -10,12 +10,50 @@ enum _SliderType { material, adaptive }
 /// A slider that can be expanded to select values with more precision.
 ///
 /// This widget is based on Flutter's [Slider] widget.
+///
+/// An expandable slider can have two status: "shrunk" and "expanded". An
+/// [ExpandableSlider] will always be a discrete [Slider], i.e., a [Slider]
+/// with non-null [Slider.divisions].
+///
+/// When shrunk, the default behavior will be that of a Flutter's [Slider],
+/// that is, both the [min] and [max] values of the slider are visible and
+/// reachable by the slider thumb. Depending on the [estimatedValueStep] and
+/// [shrunkWidth] properties, a shrunk expandable slider can either have
+/// visible or invisible divisions: the divisions will be visible if the
+/// [ExpandableSlider] has enough room to present the divisions, and the
+/// divisions will be invisible otherwise.
+///
+/// An expanded [ExpandableSlider] will always have visible divisions, and the
+/// spacing between divisions will always be enough for the user to move the
+/// slider thumb between divisions easily. On the other hand, the [min] and
+/// [max] values of the slider might not be visible when the slider is expanded.
+/// If, while expanded, the slider thumb tries to exit the viewport, an
+/// animation will be triggered to move the viewport such that the slider thumb
+/// becomes visible again. This animation can be either:
+///
+///   * A "snap center" animation, which is a scrolling animation that occurs
+///   when the slider is expanded and the [value] changes in such a way that
+///   would cause the slider thumb to travel as many pixels as 0.875 times the
+///   width of the viewport. This animation causes the slider thumb to return
+///   to the center of the viewport.
+///   * A "side scroll" animation, which is a scrolling animation that occurs
+///   when the slider is expanded and the [value] changes in such a way that
+///   would cause the slider thumb to exit the viewport, but not by travelling
+///   as many pixels as 0.875 times the width of the viewport. This animation
+///   does not cause the slider thumb to return to the center of the viewport.
+///
+/// See also:
+///
+///  * [Slider], which is a widget used to select from a range of values.
+///  * [SliderTheme] and [SliderThemeData] for information about controlling
+///    the visual appearance of the slider.
 class ExpandableSlider extends StatefulWidget {
   /// Creates a Material Design slider that can be expanded to select values
   /// with more precision.
   ///
   /// See also:
-  ///   * [Slider], which is a widget used to select from a range of values.
+  ///
+  ///  * [Slider], which is a widget used to select from a range of values.
   const ExpandableSlider({
     @required this.value,
     @required this.onChanged,
@@ -54,8 +92,9 @@ class ExpandableSlider extends StatefulWidget {
   /// If a [CupertinoSlider] is created, [inactiveColor] is ignored.
   ///
   /// See also:
-  ///   * [Slider.adaptive], which creates a slider that adapts its appearance
-  ///   to the target platform.
+  /// 
+  ///  * [Slider.adaptive], which creates a slider that adapts its appearance
+  ///  to the target platform.
   const ExpandableSlider.adaptive({
     @required this.value,
     @required this.onChanged,
@@ -117,7 +156,9 @@ class ExpandableSlider extends StatefulWidget {
   ///
   /// For example, if [max] == 11, [min] == 0, and [estimatedValueStep] == 2,
   /// some jumps between divisions will imply a change in [value] of 2, and some
-  /// of them will imply a change in [value] of 3.
+  /// of them will imply a change in [value] of 3. On the other hand, if
+  /// [max] == 10, [min] == 0, and [estimatedValueStep] == 2, all jumps between
+  /// divisions will imply a change in [value] of 2, since (10 - 0) % 2 == 0.
   final double estimatedValueStep;
 
   /// The color to use for the portion of the slider track that is active.
