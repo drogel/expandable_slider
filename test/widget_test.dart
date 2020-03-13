@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:expandable_slider/expandable_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,6 +18,7 @@ void runTests({@required bool adaptive}) {
     @required double max,
     @required double min,
     @required double step,
+        ExpandableSliderController controller,
   }) =>
       tester.pumpWidget(
         MediaQuery(
@@ -29,6 +31,7 @@ void runTests({@required bool adaptive}) {
                 min: min,
                 estimatedValueStep: step,
                 adaptive: adaptive,
+                controller: controller,
               ),
             ),
           ),
@@ -61,7 +64,7 @@ void runTests({@required bool adaptive}) {
 
   group("Given a ExpandableSlider with an int associated value label", () {
     testWidgets("when loaded, then label and slider appear", (tester) async {
-      await init(tester, max: 10, min: 0, step: 1);
+      await init(tester, max: max, min: min, step: 1);
 
       expect(label, findsOneWidget);
       expect(slider, findsOneWidget);
@@ -146,6 +149,30 @@ void runTests({@required bool adaptive}) {
       await tester.pumpAndSettle();
       expect(find.text((max / 2).toStringAsFixed(0)), findsOneWidget);
       await expectExpandedSlider(tester, max);
+    });
+  });
+
+  group("Given a ExpandableSlider with an ExpandableSliderController", () {
+    final controller = ExpandableSliderController();
+
+    testWidgets("when controller calls expand, slider expands", (tester) async {
+      await init(tester, max: max, min: min, step: 1, controller: controller);
+
+      controller.expand();
+      await tester.pumpAndSettle();
+      await expectExpandedSlider(tester, max);
+    });
+
+    testWidgets("when controller calls shrink, slider shrinks", (tester) async {
+      await init(tester, max: max, min: min, step: 1, controller: controller);
+
+      // Long pressing the slider to expand it
+      await tester.longPress(slider);
+      await tester.pumpAndSettle();
+
+      controller.shrink();
+      await tester.pumpAndSettle();
+      await expectShrunkSlider(tester, max);
     });
   });
 }
