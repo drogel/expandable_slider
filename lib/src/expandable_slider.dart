@@ -82,6 +82,7 @@ class ExpandableSlider extends StatefulWidget {
     this.expandsOnScale = true,
     this.expandsOnDoubleTap = false,
     this.scrollBehavior = const ScrollBehavior(),
+    this.controller,
     Key key,
   })  : _sliderType = _SliderType.material,
         assert(estimatedValueStep != null,
@@ -123,6 +124,7 @@ class ExpandableSlider extends StatefulWidget {
     this.expandsOnScale = true,
     this.expandsOnDoubleTap = false,
     this.scrollBehavior = const ScrollBehavior(),
+    this.controller,
     Key key,
   })  : _sliderType = _SliderType.adaptive,
         assert(estimatedValueStep != null,
@@ -283,6 +285,8 @@ class ExpandableSlider extends StatefulWidget {
   /// Defaults to [ScrollBehavior].
   final ScrollBehavior scrollBehavior;
 
+  final ExpandableSliderController controller;
+
   final _SliderType _sliderType;
 
   @override
@@ -315,6 +319,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   void initState() {
     _viewModel = ExpandableSliderViewModel(min: widget.min, max: widget.max);
     _setUpExpansionAnimation();
+    _setUpControllerListeners();
     _scroll.addListener(_updateExpansionFocalValue);
     _updateExpansionFocalValue();
     _divisions = _viewModel.computeDivisions(
@@ -367,6 +372,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
 
   @override
   void dispose() {
+    widget.controller?._detach();
     _expansion.dispose();
     _viewModel = null;
     super.dispose();
@@ -500,5 +506,24 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     _expansionAnimation.addListener(_updateExpansionTransition);
     _expansionAnimation.addStatusListener((_) => _updateExpansionFocalValue());
     _previousExpansionStatus = _expansion.status;
+  }
+
+  void _setUpControllerListeners() {
+    widget.controller?._expandListener = _expand;
+    widget.controller?._shrinkListener = _shrink;
+  }
+}
+
+class ExpandableSliderController {
+  void Function() _expandListener;
+  void Function() _shrinkListener;
+
+  void expand() => _expandListener();
+
+  void shrink() => _shrinkListener();
+
+  void _detach() {
+    _expandListener = null;
+    _shrinkListener = null;
   }
 }
