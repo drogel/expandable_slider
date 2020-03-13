@@ -290,3 +290,31 @@ Defaults to false.
 How the `ScrollView` that wraps the slider should behave.
   
 Defaults to `ScrollBehavior`.
+
+#### controller (`ExpandableSliderController`)
+
+An object that can be used to control the animations of the slider.
+
+## ExpandableSliderController class
+
+A controller for an `ExpandableSlider`.
+
+This class lets you expand or shrink the expandable slider.
+
+### Constructors
+
+```dart
+ExpandableSliderController();
+```
+
+Creates an object that controls the animations of an `ExpandableSlider`.
+
+### Methods
+
+#### expand (`void Function()`)
+
+Starts running the expansion animation forwards.
+
+#### shrink (`void Function()`)
+
+Starts running the shrinkage animation forwards.

@@ -285,6 +285,7 @@ class ExpandableSlider extends StatefulWidget {
   /// Defaults to [ScrollBehavior].
   final ScrollBehavior scrollBehavior;
 
+  /// An object that can be used to control the animations of the slider.
   final ExpandableSliderController controller;
 
   final _SliderType _sliderType;
@@ -514,12 +515,20 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   }
 }
 
+/// A controller for an [ExpandableSlider].
+///
+/// This class lets you expand or shrink the expandable slider.
 class ExpandableSliderController {
+  /// Creates an object that controls the animations of an [ExpandableSlider].
+  ExpandableSliderController();
+
   void Function() _expandListener;
   void Function() _shrinkListener;
 
+  /// Starts running the expansion animation forwards.
   void expand() => _expandListener();
 
+  /// Starts running the shrinkage animation forwards.
   void shrink() => _shrinkListener();
 
   void _detach() {
