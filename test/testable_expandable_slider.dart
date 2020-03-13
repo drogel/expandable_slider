@@ -7,6 +7,7 @@ class TestableExpandableSlider extends StatefulWidget {
     @required this.min,
     @required this.estimatedValueStep,
     this.adaptive = false,
+    this.controller,
     Key key,
   }) : super(key: key);
 
@@ -18,6 +19,7 @@ class TestableExpandableSlider extends StatefulWidget {
   final double min;
   final double estimatedValueStep;
   final bool adaptive;
+  final ExpandableSliderController controller;
 
   @override
   _TestableExpandableSliderState createState() =>
@@ -60,6 +62,7 @@ class _TestableExpandableSliderState extends State<TestableExpandableSlider> {
           min: widget.min,
           max: widget.max,
           estimatedValueStep: widget.estimatedValueStep,
+          controller: widget.controller,
         )
       : ExpandableSlider(
           key: const Key(TestableExpandableSlider.slider),
@@ -68,5 +71,6 @@ class _TestableExpandableSliderState extends State<TestableExpandableSlider> {
           min: widget.min,
           max: widget.max,
           estimatedValueStep: widget.estimatedValueStep,
+          controller: widget.controller,
         );
 }

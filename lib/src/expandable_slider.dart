@@ -82,6 +82,7 @@ class ExpandableSlider extends StatefulWidget {
     this.expandsOnScale = true,
     this.expandsOnDoubleTap = false,
     this.scrollBehavior = const ScrollBehavior(),
+    this.controller,
     Key key,
   })  : _sliderType = _SliderType.material,
         assert(estimatedValueStep != null,
@@ -123,6 +124,7 @@ class ExpandableSlider extends StatefulWidget {
     this.expandsOnScale = true,
     this.expandsOnDoubleTap = false,
     this.scrollBehavior = const ScrollBehavior(),
+    this.controller,
     Key key,
   })  : _sliderType = _SliderType.adaptive,
         assert(estimatedValueStep != null,
@@ -283,6 +285,9 @@ class ExpandableSlider extends StatefulWidget {
   /// Defaults to [ScrollBehavior].
   final ScrollBehavior scrollBehavior;
 
+  /// An object that can be used to control the animations of the slider.
+  final ExpandableSliderController controller;
+
   final _SliderType _sliderType;
 
   @override
@@ -315,6 +320,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   void initState() {
     _viewModel = ExpandableSliderViewModel(min: widget.min, max: widget.max);
     _setUpExpansionAnimation();
+    _setUpControllerListeners();
     _scroll.addListener(_updateExpansionFocalValue);
     _updateExpansionFocalValue();
     _divisions = _viewModel.computeDivisions(
@@ -367,6 +373,7 @@ class _ExpandableSliderState extends State<ExpandableSlider>
 
   @override
   void dispose() {
+    widget.controller?._detach();
     _expansion.dispose();
     _viewModel = null;
     super.dispose();
@@ -500,5 +507,32 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     _expansionAnimation.addListener(_updateExpansionTransition);
     _expansionAnimation.addStatusListener((_) => _updateExpansionFocalValue());
     _previousExpansionStatus = _expansion.status;
+  }
+
+  void _setUpControllerListeners() {
+    widget.controller?._expandListener = _expand;
+    widget.controller?._shrinkListener = _shrink;
+  }
+}
+
+/// A controller for an [ExpandableSlider].
+///
+/// This class lets you expand or shrink the expandable slider.
+class ExpandableSliderController {
+  /// Creates an object that controls the animations of an [ExpandableSlider].
+  ExpandableSliderController();
+
+  void Function() _expandListener;
+  void Function() _shrinkListener;
+
+  /// Starts running the expansion animation forwards.
+  void expand() => _expandListener();
+
+  /// Starts running the shrinkage animation forwards.
+  void shrink() => _shrinkListener();
+
+  void _detach() {
+    _expandListener = null;
+    _shrinkListener = null;
   }
 }
