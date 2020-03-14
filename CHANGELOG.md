@@ -1,3 +1,8 @@
+## [1.0.2] - March 2020
+
+* Adds multiple listeners to ExpandableSliderController, so that one controller can control several sliders.
+
+
 ## [1.0.1] - March 2020
 
 * Adds ExpandableSliderController class to control the slider's expansion and shrinkage animations.

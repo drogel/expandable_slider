@@ -18,7 +18,7 @@ void runTests({@required bool adaptive}) {
     @required double max,
     @required double min,
     @required double step,
-        ExpandableSliderController controller,
+    ExpandableSliderController controller,
   }) =>
       tester.pumpWidget(
         MediaQuery(
