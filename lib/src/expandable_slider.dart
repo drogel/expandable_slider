@@ -510,8 +510,8 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   }
 
   void _setUpControllerListeners() {
-    widget.controller?._expandListener = _expand;
-    widget.controller?._shrinkListener = _shrink;
+    widget.controller?._expandListeners?.add(_expand);
+    widget.controller?._shrinkListeners?.add(_shrink);
   }
 }
 
@@ -520,19 +520,29 @@ class _ExpandableSliderState extends State<ExpandableSlider>
 /// This class lets you expand or shrink the expandable slider.
 class ExpandableSliderController {
   /// Creates an object that controls the animations of an [ExpandableSlider].
-  ExpandableSliderController();
+  ExpandableSliderController()
+      : _expandListeners = [],
+        _shrinkListeners = [];
 
-  void Function() _expandListener;
-  void Function() _shrinkListener;
+  final List<void Function()> _expandListeners;
+  final List<void Function()> _shrinkListeners;
 
   /// Starts running the expansion animation forwards.
-  void expand() => _expandListener();
+  void expand() {
+    for (final listener in _expandListeners) {
+      listener();
+    }
+  }
 
   /// Starts running the shrinkage animation forwards.
-  void shrink() => _shrinkListener();
+  void shrink() {
+    for (final listener in _shrinkListeners) {
+      listener();
+    }
+  }
 
   void _detach() {
-    _expandListener = null;
-    _shrinkListener = null;
+    _expandListeners.clear();
+    _shrinkListeners.clear();
   }
 }
