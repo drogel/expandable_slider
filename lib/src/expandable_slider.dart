@@ -507,6 +507,11 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     _expansionAnimation.addListener(_updateExpansionTransition);
     _expansionAnimation.addStatusListener((_) => _updateExpansionFocalValue());
     _previousExpansionStatus = _expansion.status;
+    if (widget.controller != null) {
+      _expansionAnimation.addStatusListener((status) {
+        widget.controller._isExpanded = status == AnimationStatus.completed;
+      });
+    }
   }
 
   void _setUpControllerListeners() {
@@ -522,10 +527,15 @@ class ExpandableSliderController {
   /// Creates an object that controls the animations of an [ExpandableSlider].
   ExpandableSliderController()
       : _expandListeners = [],
-        _shrinkListeners = [];
+        _shrinkListeners = [],
+        _isExpanded = false;
 
   final List<void Function()> _expandListeners;
   final List<void Function()> _shrinkListeners;
+  bool _isExpanded;
+
+  /// Returns true if the [ExpandableSlider] is expanded, and false otherwise.
+  bool get isExpanded => _isExpanded;
 
   /// Starts running the expansion animation forwards.
   void expand() {
