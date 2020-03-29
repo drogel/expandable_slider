@@ -174,5 +174,35 @@ void runTests({@required bool adaptive}) {
       await tester.pumpAndSettle();
       await expectShrunkSlider(tester, max);
     });
+
+    testWidgets("isExpanded returns false initially", (tester) async {
+      await init(tester, max: max, min: min, step: 1, controller: controller);
+
+      expect(controller.isExpanded, false);
+    });
+
+    testWidgets("when slider expands, isExpanded returns true", (tester) async {
+      await init(tester, max: max, min: min, step: 1, controller: controller);
+
+      // Long pressing the slider to expand it
+      await tester.longPress(slider);
+      await tester.pumpAndSettle();
+
+      expect(controller.isExpanded, true);
+    });
+
+    testWidgets("when slider shrinks, isExpanded is false", (tester) async {
+      await init(tester, max: max, min: min, step: 1, controller: controller);
+
+      // Long pressing the slider to expand it
+      await tester.longPress(slider);
+      await tester.pumpAndSettle();
+
+      // Long pressing the slider to shrink it
+      await tester.longPress(slider);
+      await tester.pumpAndSettle();
+
+      expect(controller.isExpanded, false);
+    });
   });
 }

@@ -309,6 +309,12 @@ ExpandableSliderController();
 
 Creates an object that controls the animations of an `ExpandableSlider`.
 
+### Properties
+
+#### isExpanded (`bool`)
+
+Returns true if the `ExpandableSlider` is expanded, and false otherwise.
+
 ### Methods
 
 #### expand (`void Function()`)
