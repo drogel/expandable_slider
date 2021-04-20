@@ -1,3 +1,7 @@
+## [2.0.0] - April 2021
+
+* Migrates to null-safety.
+
 ## [1.0.3] - March 2020
 
 * Adds isExpanded flag to ExpandableSliderController, to check if the ExpandableSlider is expanded or not.

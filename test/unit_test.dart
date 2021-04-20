@@ -1,11 +1,10 @@
 import 'package:expandable_slider/src/view_model.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _kScrollingStep = 64.0;
 
 void main() {
-  ExpandableSliderViewModel viewModel;
+  late ExpandableSliderViewModel viewModel;
 
   void runDivisionsTest(int expectedDivisions, double step) {
     final actual = viewModel.computeDivisions(step);
@@ -18,11 +17,11 @@ void main() {
   }
 
   void runSideScrollTest(
-    double expectedScroll, {
-    @required double newValue,
-    @required double scrollPosition,
-    @required double totalWidth,
-    @required double shrunkWidth,
+    double? expectedScroll, {
+    required double newValue,
+    required double scrollPosition,
+    required double totalWidth,
+    required double shrunkWidth,
   }) {
     final actual = viewModel.computeSideScroll(
       newValue: newValue,
@@ -34,11 +33,11 @@ void main() {
   }
 
   void runSnapCenterTest(
-    double expectedScroll, {
-    @required double shrunkWidth,
-    @required double totalWidth,
-    @required double newValue,
-    @required double oldValue,
+    double? expectedScroll, {
+    required double shrunkWidth,
+    required double totalWidth,
+    required double newValue,
+    required double oldValue,
   }) {
     final actual = viewModel.computeSnapCenterScrollPosition(
       shrunkWidth: shrunkWidth,
@@ -51,7 +50,6 @@ void main() {
 
   group("Given a normalized ExpandableSliderViewModel", () {
     setUp(() => viewModel = const ExpandableSliderViewModel(min: 0, max: 1));
-    tearDown(() => viewModel = null);
 
     group("when computeDivisions is called with exact number of divisions", () {
       test("then expected amount of divisions is retrieved", () {

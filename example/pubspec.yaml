@@ -1,5 +1,6 @@
 name: example
 description: A Flutter application that showcases the usage of an expandable slider.
+publish_to: none
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -17,11 +18,11 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
+  cupertino_icons: ^0.1.2
   expandable_slider:
     path: ../
-  cupertino_icons: ^0.1.2
+  flutter:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

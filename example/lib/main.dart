@@ -44,7 +44,7 @@ class _ExampleState extends State<Example> {
             const Text("Current slider value:"),
             Text(
               _value.toStringAsFixed(0),
-              style: Theme.of(context).textTheme.display1,
+              style: Theme.of(context).textTheme.headline4,
             ),
             const SizedBox(height: 32),
             ExpandableSlider.adaptive(
@@ -55,7 +55,7 @@ class _ExampleState extends State<Example> {
               estimatedValueStep: 1,
             ),
             const SizedBox(height: 32),
-            RaisedButton(
+            ElevatedButton(
               onPressed: () => _onChanged(widget.max / 2),
               child: const Text("Jump to half"),
             ),

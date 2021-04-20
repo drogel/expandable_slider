@@ -1,14 +1,12 @@
-import 'package:flutter/foundation.dart';
+
 
 const _kScrollingStep = 64;
 const _kSideScrollTriggerFactor = 0.085;
 const _kSnapTriggerWidthFactor = 0.875;
 
 class ExpandableSliderViewModel {
-  const ExpandableSliderViewModel({@required double min, @required double max})
-      : assert(min != null),
-        assert(max != null),
-        assert(max > min),
+  const ExpandableSliderViewModel({required double min, required double max})
+      : assert(max > min),
         _min = min,
         _max = max;
 
@@ -21,11 +19,11 @@ class ExpandableSliderViewModel {
 
   double computeExtraWidth(int divisions) => divisions * _kScrollingStep / 2;
 
-  double computeSideScroll({
-    @required double newValue,
-    @required double scrollPosition,
-    @required double totalWidth,
-    @required double shrunkWidth,
+  double? computeSideScroll({
+    required double newValue,
+    required double scrollPosition,
+    required double totalWidth,
+    required double shrunkWidth,
   }) {
     const min = 0;
     const max = 1;
@@ -39,18 +37,18 @@ class ExpandableSliderViewModel {
 
     if (minDiff + scrollTriggerDiff + min > normalizedValue) {
       return scrollPosition - _kScrollingStep;
-    } else if (max - maxDiff - scrollTriggerDiff < normalizedValue) {
+    }else if (max - maxDiff - scrollTriggerDiff < normalizedValue) {
       return scrollPosition + _kScrollingStep;
     } else {
       return null;
     }
   }
 
-  double computeSnapCenterScrollPosition({
-    @required double shrunkWidth,
-    @required double totalWidth,
-    @required double newValue,
-    @required double oldValue,
+  double? computeSnapCenterScrollPosition({
+    required double shrunkWidth,
+    required double totalWidth,
+    required double newValue,
+    required double oldValue,
   }) {
     final normalizedValue = normalize(newValue);
     final normalizedOld = normalize(oldValue);
