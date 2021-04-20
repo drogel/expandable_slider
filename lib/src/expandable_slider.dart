@@ -1,9 +1,9 @@
-import 'package:expandable_slider/src/view_model.dart';
-import 'package:expandable_slider/src/durations.dart' as durations;
 import 'package:expandable_slider/src/curves.dart' as curves;
-import 'package:flutter/services.dart';
-import 'package:flutter/material.dart';
+import 'package:expandable_slider/src/durations.dart' as durations;
+import 'package:expandable_slider/src/view_model.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 enum _SliderType { material, adaptive }
 
@@ -58,8 +58,8 @@ class ExpandableSlider extends StatefulWidget {
   ///
   ///  * [Slider], which is a widget used to select from a range of values.
   const ExpandableSlider({
-    @required this.value,
-    @required this.onChanged,
+    required this.value,
+    required this.onChanged,
     this.onChangeStart,
     this.onChangeEnd,
     this.onExpansionStart,
@@ -76,17 +76,15 @@ class ExpandableSlider extends StatefulWidget {
     this.sideScrollDuration = durations.shortPresenting,
     this.expansionCurve = curves.exiting,
     this.shrinkageCurve = curves.entering,
-    this.snapCenterScrollCurve = curves.main,
-    this.sideScrollCurve = curves.main,
+    this.snapCenterScrollCurve = curves.base,
+    this.sideScrollCurve = curves.base,
     this.expandsOnLongPress = true,
     this.expandsOnScale = true,
     this.expandsOnDoubleTap = false,
     this.scrollBehavior = const ScrollBehavior(),
     this.controller,
-    Key key,
+    Key? key,
   })  : _sliderType = _SliderType.material,
-        assert(estimatedValueStep != null,
-            "Needed to calculate the slider's divisions"),
         super(key: key);
 
   /// Creates an [ExpandableSlider] that takes the appearance of a
@@ -100,8 +98,8 @@ class ExpandableSlider extends StatefulWidget {
   ///  * [Slider.adaptive], which creates a slider that adapts its appearance
   ///  to the target platform.
   const ExpandableSlider.adaptive({
-    @required this.value,
-    @required this.onChanged,
+    required this.value,
+    required this.onChanged,
     this.onChangeStart,
     this.onChangeEnd,
     this.onExpansionStart,
@@ -118,17 +116,15 @@ class ExpandableSlider extends StatefulWidget {
     this.sideScrollDuration = durations.shortPresenting,
     this.expansionCurve = curves.exiting,
     this.shrinkageCurve = curves.entering,
-    this.snapCenterScrollCurve = curves.main,
-    this.sideScrollCurve = curves.main,
+    this.snapCenterScrollCurve = curves.base,
+    this.sideScrollCurve = curves.base,
     this.expandsOnLongPress = true,
     this.expandsOnScale = true,
     this.expandsOnDoubleTap = false,
     this.scrollBehavior = const ScrollBehavior(),
     this.controller,
-    Key key,
+    Key? key,
   })  : _sliderType = _SliderType.adaptive,
-        assert(estimatedValueStep != null,
-            "Needed to calculate the slider's divisions"),
         super(key: key);
 
   /// The currently selected value for this slider.
@@ -140,16 +136,16 @@ class ExpandableSlider extends StatefulWidget {
   final void Function(double) onChanged;
 
   /// Called when the user starts selecting a new value for the slider.
-  final void Function(double) onChangeStart;
+  final void Function(double)? onChangeStart;
 
   /// Called when the user is done selecting a new value for the slider.
-  final void Function(double) onChangeEnd;
+  final void Function(double)? onChangeEnd;
 
   /// Called when the slider starts an expansion animation.
-  final void Function() onExpansionStart;
+  final void Function()? onExpansionStart;
 
   /// Called when the slider starts a shrinkage animation.
-  final void Function() onShrinkageStart;
+  final void Function()? onShrinkageStart;
 
   /// The estimated value change when the slider thumb jumps between divisions.
   ///
@@ -172,7 +168,7 @@ class ExpandableSlider extends StatefulWidget {
   /// minimum value.
   ///
   /// Defaults to the active track color of the current [SliderTheme].
-  final Color activeColor;
+  final Color? activeColor;
 
   /// The color for the inactive portion of the slider track.
   ///
@@ -180,7 +176,7 @@ class ExpandableSlider extends StatefulWidget {
   /// maximum value.
   ///
   /// Defaults to the inactive track color of the current [SliderTheme].
-  final Color inactiveColor;
+  final Color? inactiveColor;
 
   /// The minimum value the user can select.
   ///
@@ -199,7 +195,7 @@ class ExpandableSlider extends StatefulWidget {
   /// If non-null, requires the slider to have exactly this width when shrunk.
   ///
   /// If null, the shrunk slider will try to occupy as much space as possible.
-  final double shrunkWidth;
+  final double? shrunkWidth;
 
   /// The length of time the slider expansion animation animation should last.
   ///
@@ -286,7 +282,7 @@ class ExpandableSlider extends StatefulWidget {
   final ScrollBehavior scrollBehavior;
 
   /// An object that can be used to control the animations of the slider.
-  final ExpandableSliderController controller;
+  final ExpandableSliderController? controller;
 
   final _SliderType _sliderType;
 
@@ -297,14 +293,14 @@ class ExpandableSlider extends StatefulWidget {
 class _ExpandableSliderState extends State<ExpandableSlider>
     with SingleTickerProviderStateMixin {
   final ScrollController _scroll = ScrollController();
-  ExpandableSliderViewModel _viewModel;
-  AnimationController _expansion;
-  Animation<double> _expansionAnimation;
-  AnimationStatus _previousExpansionStatus;
-  double _expansionFocalValue;
-  double _shrunkWidth;
-  double _expandedExtraWidth;
-  int _divisions;
+  late ExpandableSliderViewModel _viewModel;
+  late AnimationController _expansion;
+  late Animation<double> _expansionAnimation;
+  late AnimationStatus _previousExpansionStatus;
+  late double _expansionFocalValue;
+  late double _shrunkWidth;
+  late double _expandedExtraWidth;
+  late int _divisions;
 
   bool get _isExpanded => _expansion.status == AnimationStatus.completed;
 
@@ -375,7 +371,6 @@ class _ExpandableSliderState extends State<ExpandableSlider>
   void dispose() {
     widget.controller?._detach();
     _expansion.dispose();
-    _viewModel = null;
     super.dispose();
   }
 
@@ -406,17 +401,16 @@ class _ExpandableSliderState extends State<ExpandableSlider>
           divisions: _divisions,
         );
     }
-    return null;
   }
 
   void _expand() {
-    if (widget.onExpansionStart != null) widget.onExpansionStart();
+    if (widget.onExpansionStart != null) widget.onExpansionStart!();
     _expansion.forward();
     HapticFeedback.mediumImpact();
   }
 
   void _shrink() {
-    if (widget.onShrinkageStart != null) widget.onShrinkageStart();
+    if (widget.onShrinkageStart != null) widget.onShrinkageStart!();
     _expansion.reverse();
     HapticFeedback.mediumImpact();
   }
@@ -444,13 +438,13 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     }
   }
 
-  void _shouldSnapCenter(double newValue, double oldValue) {
+  void _shouldSnapCenter(double? newValue, double? oldValue) {
     if (!_isExpanded) return;
     final snapCenterScrollPosition = _viewModel.computeSnapCenterScrollPosition(
       shrunkWidth: _shrunkWidth,
       totalWidth: _totalWidth,
-      newValue: newValue,
-      oldValue: oldValue,
+      newValue: newValue!,
+      oldValue: oldValue!,
     );
 
     if (snapCenterScrollPosition == null) return;
@@ -509,14 +503,14 @@ class _ExpandableSliderState extends State<ExpandableSlider>
     _previousExpansionStatus = _expansion.status;
     if (widget.controller != null) {
       _expansionAnimation.addStatusListener((status) {
-        widget.controller._isExpanded = status == AnimationStatus.completed;
+        widget.controller!._isExpanded = status == AnimationStatus.completed;
       });
     }
   }
 
   void _setUpControllerListeners() {
-    widget.controller?._expandListeners?.add(_expand);
-    widget.controller?._shrinkListeners?.add(_shrink);
+    widget.controller?._expandListeners.add(_expand);
+    widget.controller?._shrinkListeners.add(_shrink);
   }
 }
 

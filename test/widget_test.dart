@@ -12,20 +12,19 @@ void main() {
   runTests(adaptive: false);
 }
 
-void runTests({@required bool adaptive}) {
+void runTests({required bool adaptive}) {
   Future<void> init(
     tester, {
-    @required double max,
-    @required double min,
-    @required double step,
-    ExpandableSliderController controller,
+    required double max,
+    required double min,
+    required double step,
+    ExpandableSliderController? controller,
   }) =>
       tester.pumpWidget(
         MediaQuery(
           data: MediaQueryData.fromWindow(window),
-          child: Directionality(
-            textDirection: TextDirection.ltr,
-            child: Scaffold(
+          child: MaterialApp(
+            home: Scaffold(
               body: TestableExpandableSlider(
                 max: max,
                 min: min,

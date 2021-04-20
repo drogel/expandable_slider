@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 class TestableExpandableSlider extends StatefulWidget {
   const TestableExpandableSlider({
-    @required this.max,
-    @required this.min,
-    @required this.estimatedValueStep,
+    required this.max,
+    required this.min,
+    required this.estimatedValueStep,
     this.adaptive = false,
     this.controller,
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   static const label = "label";
@@ -19,7 +19,7 @@ class TestableExpandableSlider extends StatefulWidget {
   final double min;
   final double estimatedValueStep;
   final bool adaptive;
-  final ExpandableSliderController controller;
+  final ExpandableSliderController? controller;
 
   @override
   _TestableExpandableSliderState createState() =>
@@ -27,7 +27,7 @@ class TestableExpandableSlider extends StatefulWidget {
 }
 
 class _TestableExpandableSliderState extends State<TestableExpandableSlider> {
-  double _value;
+  late double _value;
 
   @override
   void initState() {
@@ -44,7 +44,7 @@ class _TestableExpandableSliderState extends State<TestableExpandableSlider> {
             key: const Key(TestableExpandableSlider.label),
           ),
           _buildSlider(),
-          RaisedButton(
+          ElevatedButton(
             key: const Key(TestableExpandableSlider.button),
             onPressed: () => _onChanged(widget.max / 2),
             child: const Text("Jump to half"),
